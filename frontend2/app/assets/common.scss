@@ -35,6 +35,11 @@
 	}
 }
 
+body {
+	user-select: none;
+	cursor: default;
+}
+
 // Blue Marble fixes
 #bm-A {
 	p,

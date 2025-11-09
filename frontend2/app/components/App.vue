@@ -720,7 +720,6 @@ const goToRandom = async () => {
 	width: 100vw;
 	height: 100dvh;
 	overflow: hidden;
-	user-select: none;
 }
 
 .map-loading {
