@@ -11,6 +11,7 @@ import sirv from "sirv";
 import admin from "./routes/admin.js";
 import alliance from "./routes/alliance.js";
 import auth from "./routes/auth.js";
+import autocomplete from "./routes/autocomplete.js";
 import discord from "./routes/discord.js";
 import favoriteLocation from "./routes/favorite-location.js";
 import leaderboard from "./routes/leaderboard.js";
@@ -119,6 +120,7 @@ app.use((req, _res, next) => {
 admin(app);
 alliance(app);
 auth(app);
+autocomplete(app);
 discord(app);
 favoriteLocation(app);
 leaderboard(app);

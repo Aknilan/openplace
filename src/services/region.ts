@@ -36,7 +36,7 @@ export class RegionService {
 		latitude: number;
 		longitude: number
 	}[]>();
-	private static kd: { nearest: (pt: { latitude: number; longitude: number }) => any | null } | null = null;
+	private static kd: { nearest: (pt: { latitude: number; longitude: number }) => Point | null } | null = null;
 	private staticKey(lat: number, lon: number): string {
 		const rLat = Math.round(lat * 10_000) / 10_000;
 		const rLon = Math.round(lon * 10_000) / 10_000;
@@ -112,9 +112,12 @@ export class RegionService {
 				const axis: 0 | 1 = (depth % 2) as 0 | 1;
 				points.sort((a, b) => (axis === 0 ? a.latitude - b.latitude : a.longitude - b.longitude));
 				const mid = Math.floor(points.length / 2);
-				const node: Node = { p: points[mid] as Point, axis, left: null, right: null };
-				node.left = build(points.slice(0, mid), depth + 1);
-				node.right = build(points.slice(mid + 1), depth + 1);
+				const node: Node = {
+					p: points[mid] as Point,
+					axis,
+					left: build(points.slice(0, mid), depth + 1),
+					right: build(points.slice(mid + 1), depth + 1)
+				};
 				return node;
 			}
 			const root = build(pts, 0);
@@ -266,5 +269,25 @@ export class RegionService {
 			radius += 1;
 		}
 		return null;
+	}
+
+	public async findRegionsByQuery(query: string): Promise<Point[]> {
+		const results = await this.prisma.region.findMany({
+			where: {
+				name: { contains: query }
+			},
+			take: 5
+		});
+
+		return results.map(item => ({
+			latitude: item.latitude,
+			longitude: item.longitude,
+			id: item.id,
+			cityId: item.cityId,
+			name: item.name,
+			number: item.number,
+			countryId: item.countryId,
+			flagId: item.countryId
+		}));
 	}
 }
