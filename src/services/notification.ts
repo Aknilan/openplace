@@ -5,6 +5,7 @@ interface NotificationItem {
 	id: number;
 	read: boolean;
 	createdAt: Date;
+	type: string;
 	icon: string;
 	title: string;
 	message: string;
@@ -115,6 +116,7 @@ export class NotificationService {
 				id: item.id,
 				read: item.read,
 				createdAt: item.createdAt,
+				type: "report_feedback",
 				icon: item.icon,
 				title: item.title,
 				message: this.md.render(item.message),
@@ -129,6 +131,7 @@ export class NotificationService {
 				id: -item.id,
 				read: item.readBy.length > 0,
 				createdAt: item.createdAt,
+				type: "report_feedback",
 				icon: item.icon,
 				title: item.title,
 				message: this.md.render(item.message),
