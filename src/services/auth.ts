@@ -64,31 +64,36 @@ export class AuthService {
 			return null;
 		}
 
-		const range = isIPv6
-			? {
-					ipv6Min: ipv6ToUint8Array(start),
-					ipv6Max: ipv6ToUint8Array(start)
-				}
-			: {
-					ipv4Min: Number(start),
-					ipv4Max: Number(start)
-				};
+		let bannedIP: { id: number; suspensionReason: string } | null;
 
-		const bannedIP = await this.prisma.bannedIP.findFirst({
-			where: {
-				OR: [
-					{
-						userId: null,
-						...range
-					},
-					{
-						userId: { not: null },
-						cidr,
-						...range
-					}
-				]
-			}
-		});
+		if (isIPv6) {
+			const ipBytes = Buffer.from(ipv6ToUint8Array(start));
+			bannedIP = await this.prisma.$queryRaw<{ id: number; suspensionReason: string }[]>`
+				SELECT id, suspensionReason FROM BannedIP
+				WHERE (userId IS NULL OR (userId IS NOT NULL AND cidr = ${cidr}))
+				AND ipv6Min <= ${ipBytes} AND ipv6Max >= ${ipBytes}
+				LIMIT 1
+			`.then(results => results[0] ?? null);
+		} else {
+			const ipNum = Number(start);
+			bannedIP = await this.prisma.bannedIP.findFirst({
+				where: {
+					OR: [
+						{
+							userId: null,
+							ipv4Min: { lte: ipNum },
+							ipv4Max: { gte: ipNum }
+						},
+						{
+							userId: { not: null },
+							cidr,
+							ipv4Min: { lte: ipNum },
+							ipv4Max: { gte: ipNum }
+						}
+					]
+				}
+			});
+		}
 		if (bannedIP) {
 			return {
 				reason: bannedIP.suspensionReason as BanReason
@@ -124,35 +129,56 @@ export class AuthService {
 					continue;
 				}
 
-				const range = isIPv6
-					? {
-							ipv6Min: ipv6ToUint8Array(start),
-							ipv6Max: ipv6ToUint8Array(start)
-						}
-					: {
-							ipv4Min: Number(start),
-							ipv4Max: Number(start)
-						};
+				let bannedIPs: number;
 
-				const bannedIPs = await this.prisma.bannedIP.count({
-					where: {
-						userId,
-						cidr,
-						...range
-					},
-					take: 1
-				});
-
-				if (bannedIPs === 0) {
-					console.log(`Banning ${cidr}`);
-					await this.prisma.bannedIP.create({
-						data: {
-							cidr,
-							suspensionReason: reason!,
+				if (isIPv6) {
+					const ipBytes = Buffer.from(ipv6ToUint8Array(start));
+					bannedIPs = await this.prisma.bannedIP.count({
+						where: {
 							userId,
-							...range
-						}
+							cidr,
+							ipv6Min: ipBytes,
+							ipv6Max: ipBytes
+						},
+						take: 1
 					});
+
+					if (bannedIPs === 0) {
+						console.log(`Banning ${cidr}`);
+						await this.prisma.bannedIP.create({
+							data: {
+								cidr,
+								suspensionReason: reason!,
+								userId,
+								ipv6Min: ipBytes,
+								ipv6Max: ipBytes
+							}
+						});
+					}
+				} else {
+					const ipNum = Number(start);
+					bannedIPs = await this.prisma.bannedIP.count({
+						where: {
+							userId,
+							cidr,
+							ipv4Min: ipNum,
+							ipv4Max: ipNum
+						},
+						take: 1
+					});
+
+					if (bannedIPs === 0) {
+						console.log(`Banning ${cidr}`);
+						await this.prisma.bannedIP.create({
+							data: {
+								cidr,
+								suspensionReason: reason!,
+								userId,
+								ipv4Min: ipNum,
+								ipv4Max: ipNum
+							}
+						});
+					}
 				}
 
 				// Ban any users with this IP

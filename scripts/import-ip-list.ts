@@ -56,8 +56,8 @@ async function processLines(lines: string[]) {
 							suspensionReason: BanReason.IPList,
 							...(isIPv6
 								? {
-										ipv6Min: ipv6ToUint8Array(start),
-										ipv6Max: ipv6ToUint8Array(end)
+										ipv6Min: Buffer.from(ipv6ToUint8Array(start)),
+										ipv6Max: Buffer.from(ipv6ToUint8Array(end))
 									}
 								: {
 										ipv4Min: Number(start),
