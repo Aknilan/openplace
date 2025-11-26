@@ -1,6 +1,6 @@
 import { Client, EmbedBuilder, Events, GatewayIntentBits, GuildMember } from "discord.js";
 import { prisma } from "../config/database.js";
-import { ACTIVE_COOLDOWN_MS, BOOSTER_COOLDOWN_MS, COOLDOWN_MS } from "../services/user.js";
+import { ACTIVE_COOLDOWN_MS, BOOSTER_COOLDOWN_MS, COOLDOWN_MS, COOLDOWN_OVERRIDE_FOR_SPECIAL, SPECIAL_COOLDOWN_MS } from "../services/user.js";
 
 class DiscordBot {
 	private client: Client | null = null;
@@ -114,13 +114,16 @@ class DiscordBot {
 			}
 
 			let cooldown = COOLDOWN_MS;
-			if (this.hasActiveRole(member)) {
-				cooldown = ACTIVE_COOLDOWN_MS;
+			if (!COOLDOWN_OVERRIDE_FOR_SPECIAL) {
+				if (this.hasActiveRole(member)) {
+					cooldown = ACTIVE_COOLDOWN_MS;
+				}
+				if (this.hasBoosterRole(member)) {
+					cooldown = BOOSTER_COOLDOWN_MS;
+				}
+			} else {
+				cooldown = SPECIAL_COOLDOWN_MS;
 			}
-			if (this.hasBoosterRole(member)) {
-				cooldown = BOOSTER_COOLDOWN_MS;
-			}
-
 			await this.updateCooldown(user, cooldown);
 			return cooldown;
 		} catch (error) {

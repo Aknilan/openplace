@@ -8,6 +8,8 @@ import { ValidationError } from "../utils/error.js";
 export const COOLDOWN_MS = Number.parseInt(process.env["COOLDOWN_MS"] ?? "") || 30_000;
 export const ACTIVE_COOLDOWN_MS = Number.parseInt(process.env["ACTIVE_COOLDOWN_MS"] ?? "") || 15_000;
 export const BOOSTER_COOLDOWN_MS = Number.parseInt(process.env["BOOSTER_COOLDOWN_MS"] ?? "") || 10_000;
+export const SPECIAL_COOLDOWN_MS = Number.parseInt(process.env["SPECIAL_COOLDOWN_MS"] ?? "") || 5_000;
+export const COOLDOWN_OVERRIDE_FOR_SPECIAL = (process.env["COOLDOWN_OVERRIDE_FOR_SPECIAL"] ?? "false") === "true";
 
 export interface UpdateUserInput {
 	nickname?: string;
