@@ -48,7 +48,7 @@ class DiscordBot {
 		});
 
 		this.client.once(Events.ClientReady, async client => {
-			console.log(`[Discord Bot] Ready! Logged in as ${client.user.tag}`);
+			console.log(`[Discord Bot] Logged in as ${client.user.tag}`);
 			await this.syncAllUsers();
 		});
 
@@ -162,12 +162,13 @@ class DiscordBot {
 		}
 
 		try {
-			console.log("[Discord Bot] Syncing all users");
 
 			const guild = await this.client.guilds.fetch(this.serverId);
 			if (!guild) {
 				console.error("[Discord Bot] Could not find configured server");
 				return;
+			} else {
+				console.log(`[Discord Bot] Loaded server information: ${guild.name}`);
 			}
 
 			const linkedUsers = await prisma.user.findMany({
@@ -184,6 +185,10 @@ class DiscordBot {
 			});
 
 			await guild.members.fetch();
+			console.log(`[Discord Bot] Loaded ${guild.memberCount} members`);
+			var botMember = await guild.members.fetch(this.client.user.id);
+    		var displayName = botMember.displayName;
+			console.log(`[Discord Bot] will be represented as ${displayName} from now on.`);
 
 			for (const user of linkedUsers) {
 				if (!user.discordUserId) {
@@ -197,11 +202,11 @@ class DiscordBot {
 						this.updateUser(member);
 					}
 				} catch (error) {
-					console.error(`[Discord Bot] Error syncing user ${user.name}#${user.id}:`, error);
+					console.error(`[${displayName}] Error syncing user ${user.name}#${user.id}:`, error);
 				}
 			}
 		} catch (error) {
-			console.error("[Discord Bot] Error during sync:", error);
+			console.error(`[${displayName}] Error during sync:`, error);
 		}
 	}
 
