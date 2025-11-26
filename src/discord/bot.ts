@@ -114,7 +114,6 @@ class DiscordBot {
 			}
 
 			let cooldown = COOLDOWN_MS;
-			console.log("COOLDOWN_OVERRIDE_FOR_SPECIAL:", COOLDOWN_OVERRIDE_FOR_SPECIAL);
 			if (!COOLDOWN_OVERRIDE_FOR_SPECIAL) {
 				if (this.hasActiveRole(member)) {
 					cooldown = ACTIVE_COOLDOWN_MS;
@@ -193,7 +192,6 @@ class DiscordBot {
 				}
 
 				try {
-					console.log(`[Discord Bot] Loading information for ${user.name}#${user.id} (discord id ${user.discordUserId})`);
 					const member = await guild.members.fetch(user.discordUserId)
 						.catch(() => null);
 					if (member) {
