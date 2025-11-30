@@ -54,7 +54,6 @@ let resetTimer: ReturnType<typeof setTimeout> | null = null;
 let tickTimer: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(() => {
-	console.log(route);
 	returnTo.value = route.query.r as string ?? "/";
 
 	resetCanvas();
