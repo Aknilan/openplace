@@ -4,7 +4,7 @@
 		:disabled="loading ? 'disabled' : null"
 		@submit="submit"
 	>
-		<h2 class="head">Welcome!</h2>
+		<h2 class="head">Welcome aboard!</h2>
 
 		<InputText
 			v-model="username"
@@ -96,7 +96,7 @@ const submit = async (e: Event) => {
 
 	try {
 		const config = useRuntimeConfig();
-		const { success, isNewAccount, error } = await $fetch<LoginResponse>(`${config.public.backendUrl}/login`, {
+		const { success, isNewAccount, error } = await $fetch<LoginResponse>(`${config.public.backendUrl}/register`, {
 			method: "POST",
 			credentials: "include",
 			body: {

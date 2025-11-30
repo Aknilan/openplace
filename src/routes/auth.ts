@@ -48,92 +48,36 @@ export default function (app: App) {
 					.json({ error: "Invalid username or password or username contains offensive words" });
 			}
 
-			let user = await prisma.user.findFirst({
+			const user = await prisma.user.findFirst({
 				where: { name: username }
 			});
 
-			const isNewAccount = user === null;
+			if (!user) {
+				rateLimiter.recordAttempt(req.ip!, false);
+				return res.status(401)
+					.json({ error: "Invalid username or password" });
+			}
 
-			if (user) {
-				const passwordValid = await bcrypt.compare(password, user.passwordHash ?? "");
-				if (!passwordValid) {
-					rateLimiter.recordAttempt(req.ip!, false);
-					return res.status(401)
-						.json({ error: "Invalid username or password" });
-				}
+			const passwordValid = await bcrypt.compare(password, user.passwordHash ?? "");
+			if (!passwordValid) {
+				rateLimiter.recordAttempt(req.ip!, false);
+				return res.status(401)
+					.json({ error: "Invalid username or password" });
+			}
 
-				if (user.role === "deleted") {
-					return res.status(403)
-						.json({ error: "Your account has been deleted. If you believe this is a mistake, please contact the admin for assistance." });
-				}
+			if (user.role === "deleted") {
+				return res.status(403)
+					.json({ error: "Your account has been deleted. If you believe this is a mistake, please contact the admin for assistance." });
+			}
 
-				if (user.banned) {
-					const reason = authService.messageForBanReason(user.suspensionReason as BanReason);
-					return res.status(403)
-						.json({ error: `You have been banned. Reason: ${reason}` });
-				}
+			if (user.banned) {
+				const reason = authService.messageForBanReason(user.suspensionReason as BanReason);
+				return res.status(403)
+					.json({ error: `You have been banned. Reason: ${reason}` });
+			}
 
-				if (req.ip) {
-					await userService.setLastIP(user.id, req.ip);
-				}
-			} else {
-				// Rate limiting
-				const signupRateLimit = rateLimiter.checkRateLimit(req.ip!, SIGNUP_RATE_LIMIT_ATTEMPTS, SIGNUP_RATE_LIMIT_MS);
-				if (!signupRateLimit.allowed) {
-					const timestamp = new Date()
-						.toISOString();
-					console.log(`[${timestamp}] Rate limit exceeded for IP ${req.ip}`);
-					return res.status(429)
-						.json({ error: "Too many attempts. Please try again later." });
-				}
-
-				if (!UserService.isValidUsername(username)) {
-					return res.status(400)
-						.json({ error: "Username must be between 3 and 16 characters and cannot contain special characters." });
-				}
-
-				let country = req.get("cf-ipcountry") as string ?? null;
-				if (!(/^[A-Z]{2}$/).test(country)) {
-					country = "US";
-				}
-
-				const ban = await authService.getBan({ ip: req.ip!, country });
-				if (ban) {
-					console.log(`Banned IP ${req.ip} attempted to register as ${username}`);
-					const reason = authService.messageForBanReason(ban.reason);
-					return res.status(403)
-						.json({ error: `You have been banned. Reason: ${reason}` });
-				}
-
-				const passwordHash = await bcrypt.hash(password, 10);
-				const firstUser = (await prisma.user.count({
-					where: {
-						id: { gte: 0 }
-					}
-				})) === 0;
-
-				user = await prisma.user.create({
-					data: {
-						name: username,
-						nickname: getRandomUniqueName(),
-						passwordHash,
-						registrationIP: req.ip!,
-						lastIP: req.ip!,
-						country,
-						role: firstUser ? "admin" : "user",
-						droplets: 1000,
-						currentCharges: 20,
-						maxCharges: 20,
-						chargesCooldownMs: COOLDOWN_MS,
-						pixelsPainted: 0,
-						level: 1,
-						extraColorsBitmap: 0,
-						equippedFlag: 0,
-						chargesLastUpdatedAt: new Date()
-					}
-				});
-				const date = new Date();
-				console.log(`[${date.toISOString()}] [${req.ip}] registered with ${user.name}#${user.id}!`);
+			if (req.ip) {
+				await userService.setLastIP(user.id, req.ip);
 			}
 
 			const session = await prisma.session.create({
@@ -159,9 +103,114 @@ export default function (app: App) {
 			rateLimiter.recordAttempt(req.ip!, true);
 			const date = new Date();
 			console.log(`[${date.toISOString()}] [${req.ip}] ${user.name}#${user.id} logged in`);
-			return res.json({ success: true, isNewAccount });
+			return res.json({ success: true });
 		} catch (error) {
 			console.error("Login error:", error);
+			return res.status(500)
+				.json({ error: "Internal Server Error" });
+		}
+	});
+
+	app.post("/register", async (req, res) => {
+		try {
+			const { username, password } = req.body;
+
+			if (!username || !password) {
+				return res.status(400)
+					.json({ error: "Username and password required" });
+			}
+
+			// Rate limiting
+			const rateLimit = rateLimiter.checkRateLimit(req.ip!, SIGNUP_RATE_LIMIT_ATTEMPTS, SIGNUP_RATE_LIMIT_MS);
+			if (!rateLimit.allowed) {
+				const timestamp = new Date()
+					.toISOString();
+				console.log(`[${timestamp}] Rate limit exceeded for IP ${req.ip}`);
+				return res.status(429)
+					.json({ error: "Too many attempts. Please try again later." });
+			}
+
+			if (!UserService.isValidUsername(username)) {
+				return res.status(400)
+					.json({ error: "Username must be between 3 and 16 characters and cannot contain special characters." });
+			}
+
+			const existingUser = await prisma.user.findFirst({
+				where: { name: username }
+			});
+
+			if (existingUser) {
+				return res.status(400)
+					.json({ error: "Username already exists" });
+			}
+
+			let country = req.get("cf-ipcountry") as string ?? null;
+			if (!(/^[A-Z]{2}$/).test(country)) {
+				country = "US";
+			}
+
+			const ban = await authService.getBan({ ip: req.ip!, country });
+			if (ban) {
+				console.log(`Banned IP ${req.ip} attempted to register as ${username}`);
+				const reason = authService.messageForBanReason(ban.reason);
+				return res.status(403)
+					.json({ error: `You have been banned. Reason: ${reason}` });
+			}
+
+			const passwordHash = await bcrypt.hash(password, 10);
+			const firstUser = (await prisma.user.count({
+				where: {
+					id: { gte: 0 }
+				}
+			})) === 0;
+
+			const user = await prisma.user.create({
+				data: {
+					name: username,
+					nickname: getRandomUniqueName(),
+					passwordHash,
+					registrationIP: req.ip!,
+					lastIP: req.ip!,
+					country,
+					role: firstUser ? "admin" : "user",
+					droplets: 1000,
+					currentCharges: 20,
+					maxCharges: 20,
+					chargesCooldownMs: COOLDOWN_MS,
+					pixelsPainted: 0,
+					level: 1,
+					extraColorsBitmap: 0,
+					equippedFlag: 0,
+					chargesLastUpdatedAt: new Date()
+				}
+			});
+
+			const session = await prisma.session.create({
+				data: {
+					userId: user.id,
+					expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+				}
+			});
+
+			const authToken: AuthToken = {
+				userId: user.id,
+				sessionId: session.id,
+				role: user.role as UserRole,
+				iss: "openplace",
+				exp: Math.floor(session.expiresAt.getTime() / 1000),
+				iat: Math.floor(Date.now() / 1000)
+			};
+			const token = jwt.sign(authToken, JWT_SECRET!);
+
+			res.setHeader("Set-Cookie", [
+				`j=${token}; HttpOnly; Path=/; Max-Age=${30 * 24 * 60 * 60}; SameSite=Lax`
+			]);
+			rateLimiter.recordAttempt(req.ip!, true);
+			const date = new Date();
+			console.log(`[${date.toISOString()}] [${req.ip}] registered with ${user.name}#${user.id}!`);
+			return res.json({ success: true });
+		} catch (error) {
+			console.error("Registration error:", error);
 			return res.status(500)
 				.json({ error: "Internal Server Error" });
 		}
@@ -232,7 +281,7 @@ export default function (app: App) {
 
 			if (!user.discordUserId) {
 				return res.status(400)
-					.json({ error: "No Discord account linked. Please contact the admin for assistance." });
+					.json({ error: "Your account could not be recovered as it was not linked with a Discord account. Please contact an administrator for assistance." });
 			}
 
 			const recentToken = await prisma.passwordResetToken.findFirst({

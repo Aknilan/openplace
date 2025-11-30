@@ -4,11 +4,11 @@
 		@submit="submit"
 	>
 		<h2 class="head">Reset Password</h2>
-		<p>If you have a Discord account linked, you can reset your password here.</p>
+		<p>Forgot your password? Don't worry, I don't know it either.</p>
 
 		<InputText
 			v-model="username"
-			placeholder="Username"
+			placeholder="openplace username"
 			aria-label="Username"
 			autocomplete="username"
 			required
@@ -20,7 +20,7 @@
 			v-if="success"
 			severity="success"
 		>
-			If your account has Discord linked, you will receive a password reset link via DM. If you don’t receive a DM, check whether your Discord account is configured to allow DMs from our server.
+			Please check your DMs for a password reset link. If you did not receive a DM, ensure your privacy settings allow DMs from our server.
 		</Message>
 
 		<Message
