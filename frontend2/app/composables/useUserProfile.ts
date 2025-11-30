@@ -59,7 +59,7 @@ export const useUserProfile = () => {
 	};
 
 	const logOut = async (): Promise<void> => {
-		return await $fetch(`${baseURL}/logout`, {
+		return await $fetch(`${baseURL}/auth/logout`, {
 			method: "POST",
 			credentials: "include",
 			headers: {
