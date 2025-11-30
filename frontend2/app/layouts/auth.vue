@@ -5,8 +5,10 @@
 		<div class="root">
 			<Card class="root-card">
 				<template #header>
+					<!-- TODO: Tidy this up when we can -->
 					<RouterLink
-						:to="returnTo ?? '/'"
+						v-if="returnTo !== '/'"
+						:to="returnTo"
 						class="logo">
 						<img
 							src="/img/logo-512x512.png"
@@ -15,6 +17,18 @@
 							height="64"
 						>
 					</RouterLink>
+
+					<a
+						v-else
+						:href="returnTo"
+						class="logo">
+						<img
+							src="/img/logo-512x512.png"
+							alt=""
+							width="64"
+							height="64"
+						>
+					</a>
 				</template>
 
 				<template #content>
@@ -33,7 +47,7 @@ import { palette } from "~/utils/palette";
 const route = useRoute();
 
 const bgCanvas = ref<HTMLCanvasElement | null>(null);
-const returnTo = ref<string | null>(null);
+const returnTo = ref("/");
 
 let lastReset = 0;
 let resetTimer: ReturnType<typeof setTimeout> | null = null;
@@ -41,7 +55,7 @@ let tickTimer: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(() => {
 	console.log(route);
-	returnTo.value = route.query.r as string;
+	returnTo.value = route.query.r as string ?? "/";
 
 	resetCanvas();
 	window.addEventListener("resize", resetCanvas);
