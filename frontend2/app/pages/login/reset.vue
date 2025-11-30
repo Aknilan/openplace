@@ -10,6 +10,7 @@
 			v-model="username"
 			placeholder="Username"
 			aria-label="Username"
+			autocomplete="username"
 			required
 			autofocus
 			:disabled="loading"

@@ -10,6 +10,7 @@
 			placeholder="Password"
 			aria-label="Password"
 			type="password"
+			autocomplete="new-password"
 			required
 			minlength="8"
 			:disabled="loading"
@@ -20,6 +21,7 @@
 			placeholder="Confirm Password"
 			aria-label="Confirm Password"
 			type="password"
+			autocomplete="new-password"
 			required
 			minlength="8"
 			:disabled="loading"
