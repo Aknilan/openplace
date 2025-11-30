@@ -1,9 +1,5 @@
-{
-	auto_https off
-}
-
-https://mini.tail61a7d.ts.net:4000 {
-	# tls internal
+http://localhost:8000, https://localhost:8080 {
+	tls internal
 
 	# New frontend
 	handle /beta* {
