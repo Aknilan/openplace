@@ -69,11 +69,12 @@ export const useUserProfile = () => {
 	};
 
 	const logIn = () => {
+		const router = useRouter();
 		const params = new URLSearchParams();
 		if (location.href !== "/") {
-			params.set("r", location.href);
+			params.set("r", location.pathname);
 		}
-		location.href = `/login?${params.toString()}`;
+		router.push(`/login?${params.toString()}`);
 	};
 
 	return {

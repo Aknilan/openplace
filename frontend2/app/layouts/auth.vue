@@ -5,8 +5,8 @@
 		<div class="root">
 			<Card class="root-card">
 				<template #header>
-					<a
-						:href="returnTo ?? '/'"
+					<RouterLink
+						:to="returnTo ?? '/'"
 						class="logo">
 						<img
 							src="/img/logo-512x512.png"
@@ -14,7 +14,7 @@
 							width="64"
 							height="64"
 						>
-					</a>
+					</RouterLink>
 				</template>
 
 				<template #content>
