@@ -66,13 +66,17 @@ const route = useRoute();
 
 const loading = ref(false);
 const registerURL = ref("/login/register");
+const rules = ref<Rules | null>(null);
 
-onMounted(() => {
+onMounted(async () => {
 	const returnTo = route.query.r as string;
 	if (returnTo) {
 		const params = new URLSearchParams([["r", returnTo]]);
 		registerURL.value = `/login/register?${params.toString()}`;
 	}
+
+	const config = useRuntimeConfig();
+	rules.value = await $fetch(`${config.public.backendUrl}/checkrobots`);
 });
 
 interface Rules {
@@ -85,9 +89,6 @@ interface Rules {
 	extraRules?: string;
 }
 
-const rules = ref<Rules | null>(null);
-const config = useRuntimeConfig();
-rules.value = await $fetch(`${config.public.backendUrl}/checkrobots`);
 </script>
 
 <style scoped>
