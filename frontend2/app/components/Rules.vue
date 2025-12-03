@@ -51,12 +51,22 @@ interface Rules {
 
 const rules = ref<Rules | null>(null);
 
-watch(() => props.isVisible, async (newValue) => {
-	if (newValue && rules.value === null) {
-		const config = useRuntimeConfig();
-		rules.value = await $fetch(`${config.public.backendUrl}/checkrobots`);
+onMounted(async () => {
+	if (props.isVisible) {
+		await loadRules();
 	}
 });
+
+watch(() => props.isVisible, async (newValue) => {
+	if (newValue && rules.value === null) {
+		await loadRules();
+	}
+});
+
+const loadRules = async () => {
+	const config = useRuntimeConfig();
+	rules.value = await $fetch(`${config.public.backendUrl}/checkrobots`);
+};
 </script>
 
 <style scoped>
