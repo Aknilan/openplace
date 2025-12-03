@@ -14,6 +14,8 @@ const rules = {
 	isExplicitContentAllowed: getRule("ALLOW_EXPLICIT_CONTENT"),
 	isGriefingAllowed: getRule("ALLOW_GRIEFING"),
 	isKindGriefingAllowed: getRule("ALLOW_KIND_GRIEFING", true),
+	isPoliticalGriefingAllowed: getRule("ALLOW_POLITICAL_GRIEFING"),
+	isVPNAllowed: getRule("ALLOW_VPN"),
 	isBottingAllowed: getRule("ALLOW_BOTS"),
 	extraRules: process.env["EXTRA_RULES"]
 };

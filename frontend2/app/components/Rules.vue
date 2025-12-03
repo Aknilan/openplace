@@ -19,6 +19,10 @@
 		<li v-if="rules.isKindGriefingAllowed">You may draw over existing artwork if you are complementing it.</li>
 		<li v-else>Do not modify existing artwork, even to improve it.</li>
 
+		<li v-if="rules.isPoliticalGriefingAllowed">You may draw over political flags or portraits.</li>
+
+		<li v-if="!rules.isVPNAllowed">Use of VPNs or proxies is not allowed on this instance.</li>
+
 		<li v-if="rules.isBottingAllowed">You may use bots to automate drawing on this instance.</li>
 		<li v-else>Use of bots or any other automation is not allowed on this instance.</li>
 
@@ -39,6 +43,8 @@ interface Rules {
 	isExplicitContentAllowed: boolean;
 	isGriefingAllowed: boolean;
 	isKindGriefingAllowed: boolean;
+	isPoliticalGriefingAllowed: boolean;
+	isVPNAllowed: boolean;
 	isBottingAllowed: boolean;
 	extraRules?: string;
 }
