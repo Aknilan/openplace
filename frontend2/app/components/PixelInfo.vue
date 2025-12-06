@@ -40,12 +40,13 @@
 						<h4>Painted By</h4>
 						<div class="pixel-info-row">
 							<span class="pixel-info-label">User:</span>
-							<span>{{ pixelData.paintedBy.name }}#{{ pixelData.paintedBy.id }}<span style="opacity: 75%; font-weight: 300;"> • {{ moment(pixelData.paintedBy.paintedAt).fromNow() }}</span></span>
+							<span>{{ pixelData.paintedBy.name }}#{{ pixelData.paintedBy.id }}</span>
 							<span
 								v-if="pixelData.paintedBy.verified"
 								v-tooltip.top="'This player has been verified by an administrator of this instance.'">
 								<Icon name="verified" />
 							</span>
+							<span style="opacity: 75%; font-weight: 300;"> • {{ moment(pixelData.paintedBy.paintedAt).fromNow() }}</span>
 						</div>
 						<div
 							v-if="pixelData.paintedBy.discord"
