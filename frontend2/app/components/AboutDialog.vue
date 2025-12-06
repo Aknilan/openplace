@@ -34,7 +34,11 @@
 					openplace is a free unofficial open source backend for wplace. We aim to give the freedom and flexibility for all users to be able to make their own private wplace experience for themselves, their friends, or even their community.
 				</p>
 
-				<p>
+				<p v-if="isOpenplaceLive">
+					<strong>This is the official openplace.live instance.</strong> Join us on our <a href="https://discord.gg/ZRC4DnP9Z2">community Discord server</a>!
+				</p>
+
+				<p v-else>
 					<strong>This is an instance of openplace.</strong> It is not affiliated with the openplace project. Please contact the administrators of this instance for any questions or issues.
 				</p>
 			</div>
@@ -74,6 +78,8 @@ defineProps<{
 const emit = defineEmits<{
 	close: [];
 }>();
+
+const isOpenplaceLive = ref(location.hostname === "openplace.live");
 
 const handleClose = () => {
 	emit("close");
