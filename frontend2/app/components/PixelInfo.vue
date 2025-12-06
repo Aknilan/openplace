@@ -40,7 +40,7 @@
 						<h4>Painted By</h4>
 						<div class="pixel-info-row">
 							<span class="pixel-info-label">User:</span>
-							<span>{{ pixelData.paintedBy.name }}#{{ pixelData.paintedBy.id }}</span>
+							<span>{{ pixelData.paintedBy.name }}#{{ pixelData.paintedBy.id }}<span style="opacity: 75%; font-weight: 300;"> • {{ moment(pixelData.paintedBy.paintedAt).fromNow() }}</span></span>
 							<span
 								v-if="pixelData.paintedBy.verified"
 								v-tooltip.top="'This player has been verified by an administrator of this instance.'">
@@ -125,6 +125,7 @@ import { computed, ref, watch } from "vue";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
+import moment from "moment";
 import type { TileCoords } from "~/utils/coordinates";
 import { tileCoordsToLngLat } from "~/utils/coordinates";
 import { useFavorites } from "~/composables/useFavorites";
@@ -139,6 +140,7 @@ interface PixelData {
 		allianceName: string;
 		equippedFlag: number;
 		discord?: string;
+		paintedAt: string;
 		verified?: boolean;
 	};
 	region: {
