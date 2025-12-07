@@ -81,6 +81,7 @@ definePageMeta({
 
 const router = useRouter();
 const route = useRoute();
+const { fetchUserProfile } = useUserProfile();
 
 const loading = ref(false);
 const username = ref("");
@@ -90,7 +91,7 @@ const registerURL = ref("/login/register");
 const rulesURL = ref("/login/rules");
 const resetURL = ref("/login/reset");
 
-onMounted(() => {
+onMounted(async () => {
 	const returnTo = route.query.r as string;
 	if (returnTo) {
 		const params = new URLSearchParams([["r", returnTo]]);
@@ -98,7 +99,25 @@ onMounted(() => {
 		rulesURL.value = `/login/rules?${params.toString()}`;
 		resetURL.value = `/login/reset?${params.toString()}`;
 	}
+
+	try {
+		if (await fetchUserProfile()) {
+			// Already logged in, redirect now
+			done(true);
+		}
+	} catch {
+		// Ignore
+	}
 });
+
+const done = (replace = false) => {
+	const returnTo = route.query.r as string ?? "/";
+	if (replace) {
+		router.replace(returnTo);
+	} else {
+		router.push(returnTo);
+	}
+};
 
 const submit = async (e: Event) => {
 	e.preventDefault();
@@ -107,7 +126,7 @@ const submit = async (e: Event) => {
 
 	try {
 		const config = useRuntimeConfig();
-		const { success, isNewAccount, error } = await $fetch<LoginResponse>(`${config.public.backendUrl}/login`, {
+		const { success, error } = await $fetch<LoginResponse>(`${config.public.backendUrl}/login`, {
 			method: "POST",
 			credentials: "include",
 			body: {
@@ -117,20 +136,7 @@ const submit = async (e: Event) => {
 		});
 
 		if (success) {
-			const returnTo = route.query.r as string;
-			if (isNewAccount) {
-				const url = new URL("/welcome", location.origin);
-				if (returnTo) {
-					url.searchParams.set("r", returnTo);
-				}
-				router.push(url);
-			} else {
-				if (!returnTo || returnTo === "/") {
-					location.href = "/";
-				} else {
-					router.push(returnTo ?? "/");
-				}
-			}
+			done();
 		} else {
 			throw new Error(error);
 		}
