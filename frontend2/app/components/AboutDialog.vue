@@ -35,7 +35,7 @@
 				</p>
 
 				<p v-if="isOpenplaceLive">
-					<strong>This is the official openplace.live instance.</strong> Join us on our <a href="https://discord.gg/ZRC4DnP9Z2">community Discord server</a>!
+					<strong>This is the official openplace.live instance.</strong> Join our <a href="https://discord.gg/ZRC4DnP9Z2">Discord community</a>!
 				</p>
 
 				<p v-else>
@@ -79,7 +79,11 @@ const emit = defineEmits<{
 	close: [];
 }>();
 
-const isOpenplaceLive = ref(location.hostname === "openplace.live");
+const isOpenplaceLive = ref(false);
+
+onMounted(() => {
+	isOpenplaceLive.value = location.hostname === "openplace.live";
+});
 
 const handleClose = () => {
 	emit("close");
