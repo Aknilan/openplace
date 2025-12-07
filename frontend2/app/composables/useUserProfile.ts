@@ -70,8 +70,8 @@ export const useUserProfile = () => {
 
 	const logIn = () => {
 		const params = new URLSearchParams();
-		if (location.href !== "/") {
-			params.set("r", location.pathname);
+		if (location.pathname + location.search !== "/") {
+			params.set("r", location.pathname + location.search);
 		}
 		location.href = `/login?${params.toString()}`;
 	};
