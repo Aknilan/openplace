@@ -147,7 +147,8 @@ export class PixelService {
 				if (pixel.user.banned) {
 					paintedBy.push({
 						id: -1,
-						name: "Suspended Account"
+						name: "Suspended Account",
+						paintedAt: pixel.paintedAt
 					});
 				} else {
 				paintedBy.push({
