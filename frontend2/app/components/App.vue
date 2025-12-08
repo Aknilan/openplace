@@ -30,51 +30,31 @@
 
 		<div class="app-overlays">
 			<div class="app-overlays-zoom">
-				<Button
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="About openplace"
-					@click="handleAbout"
-				>
-					<Icon name="info" />
-				</Button>
-
-				<Button
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="Zoom in"
-					@click="zoomIn"
-				>
-					<Icon name="zoom_in" />
-				</Button>
-
-				<Button
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="Zoom out"
-					@click="zoomOut"
-				>
-					<Icon name="zoom_out" />
-				</Button>
-
-				<Button
+				<MapButton
+v-tooltip.right="'About openplace'"
+					icon="info"
+										@click="handleAbout"
+				/>
+				
+				<MapButton
+v-tooltip.right="'Zoom in'"
+					icon="zoom_in"
+										@click="zoomIn"
+				/>
+				
+				<MapButton
+v-tooltip.right="'Zoom out'"
+					icon="zoom_out"
+										@click="zoomOut"
+				/>
+				
+				<MapButton
 					v-if="mapBearing !== 0"
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="Reset map rotation"
-					@click="resetMapRotation"
-				>
-					<Icon name="compass" />
-				</Button>
-			</div>
+v-tooltip.right="'Reset map rotation'"
+					icon="compass"
+										@click="resetMapRotation"
+				/>
+							</div>
 
 			<div class="app-overlays-profile">
 				<div v-if="isLoggedIn">
@@ -125,35 +105,24 @@
 					severity="primary"
 					raised
 					rounded
-					aria-label="Log in"
-					@click="handleLogIn"
+										@click="handleLogIn"
 				>
 					Log in
 				</Button>
 
-				<Button
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="Toggle satellite"
-					@click="toggleSatellite"
-				>
-					<Icon :name="isSatellite ? 'map_vector' : 'map_satellite'" />
-				</Button>
-
-				<Button
-					severity="secondary"
-					raised
-					rounded
-					class="app-overlays--button"
-					aria-label="Go to random pixel"
-					:loading="isLoadingRandom"
+				<MapButton
+v-tooltip.left="'Toggle satellite'"
+					:icon="isSatellite ? 'map_vector' : 'map_satellite'"
+										@click="toggleSatellite"
+				/>
+				
+				<MapButton
+v-tooltip.left="'Go to random pixel'"
+					icon="explore"
+										:loading="isLoadingRandom"
 					@click="goToRandom"
-				>
-					<Icon name="explore" />
-				</Button>
-			</div>
+				/>
+							</div>
 
 			<div
 				v-if="isLoggedIn"
@@ -809,11 +778,6 @@ const goToRandom = async () => {
 	justify-self: stretch;
 	position: relative;
 	z-index: 12;
-}
-
-.app-overlays--button {
-	font-size: 1.1rem;
-	aspect-ratio: 1;
 }
 
 .app-overlays--avatar-button {
