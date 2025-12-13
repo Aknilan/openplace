@@ -500,9 +500,13 @@ const refreshTiles = () => {
 		const source = map.getSource("openplace-pixel-tiles");
 		// TODO: Types?
 		if (source && "setTiles" in source && typeof source.setTiles === "function") {
-			// Force maplibre to fetch again by using a fragment
-			// source.setTiles([`${config.public.backendUrl}/files/s0/tiles/{z}/{x}/{y}.png#${Date.now()}`]);
-			source.setTiles([`${config.public.backendUrl}/files/s0/tiles/{x}/{y}.png#${Date.now()}`]);
+			try {
+				// Force maplibre to fetch again by using a fragment
+				// source.setTiles([`${config.public.backendUrl}/files/s0/tiles/{z}/{x}/{y}.png#${Date.now()}`]);
+				source.setTiles([`${config.public.backendUrl}/files/s0/tiles/{x}/{y}.png#${Date.now()}`]);
+			} catch {
+				// Can throw AbortError, ignore
+			}
 			lastTileRefreshTime = Date.now();
 		}
 	}
