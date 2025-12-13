@@ -205,7 +205,33 @@ interface Pixel {
 }
 
 const USER_RELOAD_INTERVAL = 15_000;
-const DEFAULT_COORDS: LngLat = [151.208, -33.852];
+
+/* eslint-disable array-bracket-spacing,unicorn/numeric-separators-style,unicorn/no-zero-fractions */
+const DEFAULT_COORDS: LngLat[] = [
+	[ 39.90750,  116.39723], // Beijing
+	[ 41.01384,   28.94966], // Istanbul
+	[  6.45407,    3.39467], // Lagos
+	[ 10.82302,  106.62965], // Ho Chi Minh City
+	[ 31.55800,   74.35071], // Lahore
+	[ 19.07283,   72.88261], // Mumbai
+	[-23.54750,  -46.63611], // São Paulo
+	[ 19.42847,  -99.12766], // Mexico City
+	[ 55.75204,   37.61781], // Moscow
+	[ 37.56600,  126.97840], // Seoul
+	[ 35.68950,  139.69171], // Tokyo
+	[ 51.50853,   -0.12574], // London
+	[ 40.71427,  -74.00597], // New York City
+	[ 25.05306,  121.52639], // Taipei
+	[ 22.27832,  114.17469], // Hong Kong
+	[  1.28967,  103.85007], // Singapore
+	[-33.86785,  151.20732], // Sydney
+	[-37.81400,  144.96332], // Melbourne
+	[ 34.05223, -118.24368], // Los Angeles
+	[ 52.52437,   13.41053], // Berlin
+	[ 48.85341,    2.34880], // Paris
+	[-34.92866,  138.59863]  // Adelaide
+];
+/* eslint-enable unicorn/numeric-separators-style,unicorn/numeric-separators-style,unicorn/no-zero-fractions */
 
 const isPaintOpen = ref(false);
 const isSatellite = ref(false);
@@ -257,8 +283,17 @@ const savedLocation = computed((): LocationWithZoom => {
 		// Ignore
 	}
 
+	if (!location) {
+		const [lng, lat] = DEFAULT_COORDS[Math.floor(Math.random() * DEFAULT_COORDS.length)]!;
+		location = {
+			lng,
+			lat,
+			zoom: CLOSE_ZOOM_LEVEL
+		};
+	}
+
 	return {
-		center: location ? [location.lng, location.lat] : DEFAULT_COORDS,
+		center: [location.lng, location.lat],
 		zoom: location?.zoom ?? CLOSE_ZOOM_LEVEL
 	};
 });
