@@ -245,8 +245,9 @@ try {
 						const latitude = parts[4];
 						const longitude = parts[5];
 						const countryCode = parts[8];
+						const population = parts[14];
 
-						if (!id || !name || !latitude || !longitude || !countryCode) return;
+						if (!id || !name || !latitude || !longitude || !countryCode || !population) return;
 
 						if (ignoredCountries.has(countryCode)) return;
 
@@ -266,7 +267,8 @@ try {
 							number: 1,
 							countryId,
 							latitude: Number(latitude),
-							longitude: Number(longitude)
+							longitude: Number(longitude),
+							population: Number(population)
 						};
 
 						try {

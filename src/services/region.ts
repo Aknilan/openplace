@@ -16,7 +16,7 @@ interface Point {
 	cityId: number;
 	name: string;
 	number: number;
-	countryId: number
+	countryId: number;
 }
 
 export class RegionService {
@@ -277,10 +277,13 @@ export class RegionService {
 			where: {
 				name: { contains: queryLowercase }
 			},
+			orderBy: {
+				population: "desc"
+			},
 			take: 20
 		});
 
-		// Sort by relevance: exact match -> starts with -> contains
+		// Sort by relevance: exact match -> population -> starts with -> name length
 		const sorted = results.sort((a, b) => {
 			const aName = a.name.toLowerCase();
 			const bName = b.name.toLowerCase();
@@ -295,6 +298,12 @@ export class RegionService {
 			const bStarts = bName.startsWith(queryLowercase) ? 0 : 1;
 			if (aStarts !== bStarts) {
 				return aStarts - bStarts;
+			}
+
+			const aPopulation = a.population ?? 0;
+			const bPopulation = b.population ?? 0;
+			if (aPopulation !== bPopulation) {
+				return bPopulation - aPopulation;
 			}
 
 			return aName.length - bName.length;

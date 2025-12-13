@@ -158,17 +158,19 @@ model Pixel {
 }
 
 model Region {
-  id        Int    @id @default(autoincrement())
-  cityId    Int    @unique
-  name      String
-  number    Int
-  countryId Int
-  latitude  Float
-  longitude Float
+  id         Int    @id @default(autoincrement())
+  cityId     Int    @unique
+  name       String
+  number     Int
+  countryId  Int
+  latitude   Float
+  longitude  Float
+  population Int    @default(0)
 
   @@unique([latitude, longitude])
   @@index([latitude])
   @@index([longitude])
+  @@index([population])
   @@fulltext([name])
 }
 
