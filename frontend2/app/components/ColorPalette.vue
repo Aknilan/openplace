@@ -55,7 +55,7 @@
 							:raised="selectedColor === `rgba(${item.rgba.join(',')})`"
 							:disabled="!isColorUnlocked(item.index, extraColorsBitmap)"
 							:aria-label="isColorUnlocked(item.index, extraColorsBitmap) ? 'Select color' : 'Color locked'"
-							@click="$emit('colorSelect', `rgba(${item.rgba.join(',')})`)">
+							@click="$emit('selectColor', item.index, `rgba(${item.rgba.join(',')})`)">
 							<span/>
 						</Button>
 					</div>
@@ -92,10 +92,10 @@ defineProps<{
 }>();
 
 defineEmits<{
-	colorSelect: [color: string];
 	close: [];
-	toggleEraser: [];
 	submit: [];
+	selectColor: [index: number, color: string];
+	toggleEraser: [];
 }>();
 </script>
 

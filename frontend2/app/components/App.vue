@@ -33,7 +33,7 @@
 				<MapButton
 					v-tooltip.right="'About openplace'"
 					icon="info"
-					@click="handleAbout"
+					@click="isAboutOpen = true"
 				/>
 
 				<MapButton
@@ -111,6 +111,12 @@
 				</Button>
 
 				<MapButton
+					v-tooltip.left="'Store'"
+					icon="store"
+					@click="isStoreOpen = true"
+				/>
+
+				<MapButton
 					v-tooltip.left="'Toggle satellite'"
 					:icon="isSatellite ? 'map_vector' : 'map_satellite'"
 					@click="toggleSatellite"
@@ -150,10 +156,10 @@
 					:pixel-count="pixels.length"
 					:time-until-next="formattedTime"
 					:extra-colors-bitmap="userProfile?.extraColorsBitmap ?? 0"
-					@color-select="handleColorSelect"
 					@close="handleClosePaint"
-					@toggle-eraser="isEraserMode = !isEraserMode"
 					@submit="handleSubmitPixels"
+					@select-color="handleSelectColor"
+					@toggle-eraser="isEraserMode = !isEraserMode"
 				/>
 			</div>
 		</div>
@@ -170,6 +176,13 @@
 		<AboutDialog
 			:is-open="isAboutOpen"
 			@close="isAboutOpen = false"
+		/>
+
+		<StoreDialog
+			:is-open="isStoreOpen"
+			:user-profile="userProfile"
+			@close="isStoreOpen = false"
+			@refresh="handleStoreRefresh"
 		/>
 
 		<NotificationDialog
@@ -191,6 +204,7 @@ import UserAvatar from "~/components/UserAvatar.vue";
 import UserMenu from "~/components/UserMenu.vue";
 import PixelInfo from "~/components/PixelInfo.vue";
 import NotificationDialog from "~/components/NotificationDialog.vue";
+import StoreDialog from "~/components/StoreDialog.vue";
 import { CLOSE_ZOOM_LEVEL, getPixelId, type LngLat, lngLatToTileCoords, type TileCoords, tileCoordsToLngLat, ZOOM_LEVEL } from "~/utils/coordinates";
 import { type UserProfile, useUserProfile } from "~/composables/useUserProfile";
 import { useCharges } from "~/composables/useCharges";
@@ -239,6 +253,7 @@ const isUserMenuOpen = ref(false);
 const isPixelInfoOpen = ref(false);
 const isNotificationsOpen = ref(false);
 const isAboutOpen = ref(false);
+const isStoreOpen = ref(false);
 const notificationCount = ref(0);
 const selectedColor = ref("rgba(0,0,0,1)");
 const isEraserMode = ref(false);
@@ -386,6 +401,15 @@ onMounted(async () => {
 		localStorage["showed:info"] = "true";
 	}
 
+	// Select previous color
+	const selectedColorIndex = Number(localStorage["selected-color"] ?? "");
+	if (!Number.isNaN(selectedColorIndex)) {
+		const color = palette.find(({ index }) => index === selectedColorIndex);
+		if (color) {
+			selectedColor.value = `rgba(${color.rgba.join(",")})`;
+		}
+	}
+
 	// Jump to url params
 	const params = new URLSearchParams(location.search);
 	const latStr = params.get("lat");
@@ -479,11 +503,39 @@ const clearPendingPixels = () => {
 const handleClosePaint = () => {
 	clearPendingPixels();
 	isPaintOpen.value = false;
+	isEraserMode.value = false;
 };
 
-const handleColorSelect = (color: string) => {
+const handleSelectColor = (index: number, color: string) => {
 	selectedColor.value = color;
 	isEraserMode.value = false;
+	localStorage["selected-color"] = `${index}`;
+};
+
+const handleSubmitPixels = async () => {
+	if (pixels.value.length === 0) {
+		return;
+	}
+
+	try {
+		const paintPixels = pixels.value.map(({ tileCoords, color }) => ({ tileCoords, color }));
+		await submitPixels(paintPixels);
+
+		// Commit the painted pixels to our local state
+		mapRef.value?.commitCanvases();
+		commitPixels();
+
+		// Reset state
+		pixels.value = [];
+		isPaintOpen.value = false;
+		isEraserMode.value = false;
+	} catch (error) {
+		console.error("Failed to submit pixels:", error);
+		handleError(error);
+	}
+
+	// Get new charges from server
+	updateUserProfile();
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {
@@ -613,35 +665,6 @@ const handlePaintButtonClick = () => {
 	pushMapLocation();
 };
 
-const handleSubmitPixels = async () => {
-	if (pixels.value.length === 0) {
-		return;
-	}
-
-	try {
-		// TODO: Tidy up
-		const paintPixels = pixels.value.map(p => ({
-			tileCoords: p.tileCoords,
-			color: p.color
-		}));
-		await submitPixels(paintPixels);
-
-		// Commit the painted pixels to our local state
-		mapRef.value?.commitCanvases();
-		commitPixels();
-
-		// Reset state
-		pixels.value = [];
-		isPaintOpen.value = false;
-	} catch (error) {
-		console.error("Failed to submit pixels:", error);
-		handleError(error);
-	}
-
-	// Get new charges from server
-	updateUserProfile();
-};
-
 const handleLogIn = () => {
 	logIn();
 };
@@ -678,8 +701,14 @@ const handleFavoriteClick = (favorite: { id: number; name: string; latitude: num
 	selectedPixelCoords.value = tileCoords;
 };
 
-const handleAbout = () => {
-	isAboutOpen.value = true;
+const handleStoreRefresh = async () => {
+	try {
+		lastUserProfileFetch = Date.now();
+		userProfile.value = await fetchUserProfile();
+	} catch (error) {
+		console.error("Failed to refresh user profile:", error);
+		handleError(error);
+	}
 };
 
 const zoomIn = () => mapRef.value?.zoomIn();
