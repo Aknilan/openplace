@@ -76,6 +76,7 @@ const emit = defineEmits<{
 
 const TILE_RELOAD_INTERVAL = 15_000;
 const LOCATION_SAVE_INTERVAL = 5000;
+const ACTIVITY_TIMEOUT = 5 * 60 * 1000;
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -92,6 +93,7 @@ const centerCoords = ref<TileCoords | null>(null);
 
 let saveLocationTimeout: ReturnType<typeof setTimeout> | null = null;
 let tileReloadInterval: ReturnType<typeof setInterval> | null = null;
+let activityTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastTileRefreshTime = 0;
 
 const tileCanvases = new Map<string, TileCanvas>();
@@ -522,6 +524,31 @@ const stopTileReloadTimer = () => {
 	}
 };
 
+const resetActivityTimeout = () => {
+	if (activityTimeout) {
+		clearTimeout(activityTimeout);
+	}
+	activityTimeout = setTimeout(stopTileReloadTimer, ACTIVITY_TIMEOUT);
+};
+
+const resumeAfterActivity = () => {
+	if (Date.now() - lastTileRefreshTime >= TILE_RELOAD_INTERVAL) {
+		refreshTiles();
+	}
+	startTileReloadTimer();
+	resetActivityTimeout();
+};
+
+const handleActivity = () => {
+	if (tileReloadInterval) {
+		// Not timed out yet, reset timer
+		resetActivityTimeout();
+	} else {
+		// Timed out, resume
+		resumeAfterActivity();
+	}
+};
+
 const updateCursor = () => {
 	const canvas = map!.getCanvas();
 	canvas.style.cursor = props.isDrawing || map!.getZoom() >= ZOOM_LEVEL ? "crosshair" : "grab";
@@ -541,8 +568,7 @@ onMounted(async () => {
 	const maplibregl = (await import("maplibre-gl")).default;
 
 	map = new maplibregl.Map({
-		// TODO: Fix type
-		container: mapContainer.value as any,
+		container: mapContainer.value,
 		style: mapStyle.value!,
 		center: props.initialLocation.center,
 		zoom: props.initialLocation.zoom,
@@ -720,9 +746,16 @@ onMounted(async () => {
 
 	// Reload tiles every 15 seconds
 	startTileReloadTimer();
+	resetActivityTimeout();
 
+	// Idle timeout handlers
 	globalThis.addEventListener("blur", stopTileReloadTimer);
-	globalThis.addEventListener("focus", startTileReloadTimer);
+	globalThis.addEventListener("focus", resumeAfterActivity);
+	globalThis.addEventListener("mousemove", handleActivity);
+	globalThis.addEventListener("click", handleActivity);
+	globalThis.addEventListener("keydown", handleActivity);
+	globalThis.addEventListener("scroll", handleActivity);
+	globalThis.addEventListener("touchstart", handleActivity);
 
 	darkMode.addEventListener("change", darkModeChanged);
 });
@@ -781,9 +814,17 @@ onUnmounted(() => {
 	if (saveLocationTimeout) {
 		clearTimeout(saveLocationTimeout);
 	}
+	if (activityTimeout) {
+		clearTimeout(activityTimeout);
+	}
 
 	globalThis.removeEventListener("blur", stopTileReloadTimer);
-	globalThis.removeEventListener("focus", startTileReloadTimer);
+	globalThis.removeEventListener("focus", resumeAfterActivity);
+	globalThis.removeEventListener("mousemove", handleActivity);
+	globalThis.removeEventListener("click", handleActivity);
+	globalThis.removeEventListener("keydown", handleActivity);
+	globalThis.removeEventListener("scroll", handleActivity);
+	globalThis.removeEventListener("touchstart", handleActivity);
 
 	darkMode.removeEventListener("change", darkModeChanged);
 	removeAllCanvases();
