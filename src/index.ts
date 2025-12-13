@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { App, Response } from "@tinyhttp/app";
+import { App, Handler, Response } from "@tinyhttp/app";
 import { cookieParser } from "@tinyhttp/cookie-parser";
 import fs from "fs/promises";
 import { ServerResponse } from "http";
@@ -150,32 +150,35 @@ store(app);
 // Proxy new frontend paths
 const FRONTEND_HOST = process.env["FRONTEND_HOST"] ?? "localhost";
 const FRONTEND_PORT = process.env["FRONTEND_PORT"] ?? "3001";
-app.use(async (req, res, next) => {
-	if (req.path.startsWith("/login") || req.path.startsWith("/beta") || req.path.startsWith("/_nuxt") || req.path.startsWith("/__nuxt")) {
-		try {
-			const method = req.method ?? "GET";
-			const res2 = await fetch(`http://${FRONTEND_HOST}:${FRONTEND_PORT}${req.url}`, {
-				method,
-				headers: req.headers as Record<string, string>,
-				...(["GET", "HEAD"].includes(method)
-					? {}
-					: {
-							body: JSON.stringify(req.body)
-						})
-			});
-			res.status(res2.status);
-			for (const [key, value] of res2.headers.entries()) {
-				res.set(key, value);
-			}
-			return res.send(Buffer.from(await res2.arrayBuffer()));
-		} catch (error) {
-			console.error("Frontend proxy error:", error);
-			return res.status(502)
-				.send("Bad Gateway");
+
+const frontendProxy: Handler = async (req, res, _next) => {
+	try {
+		const method = req.method ?? "GET";
+		const res2 = await fetch(`http://${FRONTEND_HOST}:${FRONTEND_PORT}${req.url}`, {
+			method,
+			headers: req.headers as Record<string, string>,
+			...(["GET", "HEAD"].includes(method)
+				? {}
+				: {
+						body: JSON.stringify(req.body)
+					})
+		});
+		res.status(res2.status);
+		for (const [key, value] of res2.headers.entries()) {
+			res.set(key, value);
 		}
+		return res.send(Buffer.from(await res2.arrayBuffer()));
+	} catch (error) {
+		console.error("Frontend proxy error:", error);
+		return res.status(502)
+			.send("Bad Gateway");
 	}
-	return next?.();
-});
+};
+
+app.get("/login", frontendProxy);
+app.get("/login/*", frontendProxy);
+app.get("/beta", frontendProxy);
+app.get("/_nuxt/*", frontendProxy);
 
 app.use(sirv("./frontend", {
 	dev: isDev,
