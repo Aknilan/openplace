@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import type { Map as MaplibreMap, StyleSpecification } from "maplibre-gl";
+import type { Map as MaplibreMap, Marker, RasterTileSource, StyleSpecification } from "maplibre-gl";
 import { getPixelBounds, getPixelsBetween, getTileBounds, type LngLat, lngLatToTileCoords, TILE_SIZE, type TileCoords, ZOOM_LEVEL } from "~/utils/coordinates";
 
 // Expose things for user scripts to access
@@ -82,8 +82,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 let map: MaplibreMap | null = null;
-// TODO: Fix type
-const favoriteMarkers: unknown[] = [];
+const favoriteMarkers: Marker[] = [];
 
 const hoverCoords = ref<TileCoords | null>(null);
 const currentZoom = ref(11);
@@ -468,25 +467,23 @@ const updateFavoriteMarkers = async () => {
 
 	// Remove all existing markers
 	for (const marker of favoriteMarkers) {
-		if (marker && typeof (marker as { remove: () => void }).remove === "function") {
-			(marker as { remove: () => void }).remove();
-		}
+		marker.remove();
 	}
 	favoriteMarkers.length = 0;
 
 	for (const favorite of props.favoriteLocations ?? []) {
 		// TODO: Tidy this up
-		const star = document.createElement("div");
+		const star = document.createElement("button");
 		star.className = "favorite-marker";
 		star.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#ffb300" d="m6.128 21 1.548-6.65-5.181-4.484 6.835-.587L11.995 3l2.675 6.279 6.835.587-5.181 4.484L17.872 21l-5.877-3.533z"/></svg>`;
-		star.style.cssText = "cursor: pointer;";
 		star.title = "Click to visit favorite location";
-		star.addEventListener("click", (e) => {
+		star.setAttribute("aria-label", "Favorite location");
+		star.addEventListener("click", e => {
 			e.stopPropagation();
 			emit("favoriteClick", favorite);
 		});
 
-		const marker = new maplibregl.Marker({ element: star as HTMLElement })
+		const marker = new maplibregl.Marker({ element: star })
 			.setLngLat([favorite.longitude, favorite.latitude])
 			.addTo(map);
 
@@ -497,9 +494,8 @@ const updateFavoriteMarkers = async () => {
 const refreshTiles = () => {
 	if (map && map.getSource("openplace-pixel-tiles")) {
 		const config = useRuntimeConfig();
-		const source = map.getSource("openplace-pixel-tiles");
-		// TODO: Types?
-		if (source && "setTiles" in source && typeof source.setTiles === "function") {
+		const source = map.getSource("openplace-pixel-tiles") as RasterTileSource;
+		if (source) {
 			try {
 				// Force maplibre to fetch again by using a fragment
 				// source.setTiles([`${config.public.backendUrl}/files/s0/tiles/{z}/{x}/{y}.png#${Date.now()}`]);
@@ -910,5 +906,13 @@ defineExpose({
 	font-size: 12px;
 	line-height: 1.5;
 	pointer-events: none;
+}
+
+:deep(.favorite-marker) {
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
 }
 </style>
