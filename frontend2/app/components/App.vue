@@ -779,7 +779,7 @@ const goToRandom = async () => {
 	display: grid;
 	grid-template-areas:
 		"top-left . top-right"
-		". . right"
+		". . ."
 		"paint paint paint";
 	grid-template-rows: auto 1fr auto;
 	grid-template-columns: auto 1fr auto;
@@ -792,7 +792,7 @@ const goToRandom = async () => {
 	pointer-events: none;
 }
 
-.app-overlays > * {
+.app-overlays > * > * {
 	pointer-events: auto;
 }
 
@@ -802,16 +802,6 @@ const goToRandom = async () => {
 	align-items: flex-start;
 	gap: 0.75rem;
 	grid-area: top-left;
-	padding: 1rem;
-}
-
-.app-overlays-random {
-	display: flex;
-	flex-direction: column;
-	align-self: center;
-	justify-self: end;
-	gap: 0.75rem;
-	grid-area: right;
 	padding: 1rem;
 }
 

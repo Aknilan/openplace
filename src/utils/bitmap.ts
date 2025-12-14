@@ -39,12 +39,30 @@ export class WplaceBitMap implements BitMap {
 	}
 
 	toBase64(): string {
-		return Buffer.from(this.bytes)
-			.toString("base64");
+		if (globalThis.btoa) {
+			let binaryString = "";
+			for (const byte of this.bytes) {
+				binaryString += String.fromCodePoint(byte);
+			}
+			return globalThis.btoa(binaryString);
+		} else {
+			return Buffer.from(this.bytes)
+				.toString("base64");
+		}
 	}
 
 	static fromBase64(base64: string): WplaceBitMap {
-		const bytes = new Uint8Array(Buffer.from(base64, "base64"));
-		return new WplaceBitMap(bytes);
+		if (globalThis.atob) {
+			const binaryString = globalThis.atob(base64);
+			const len = binaryString.length;
+			const bytes = new Uint8Array(len);
+			for (let i = 0; i < len; i++) {
+				bytes[i] = binaryString.codePointAt(i);
+			}
+			return new WplaceBitMap(bytes);
+		} else {
+			const bytes = new Uint8Array(Buffer.from(base64, "base64"));
+			return new WplaceBitMap(bytes);
+		}
 	}
 }
