@@ -1,6 +1,7 @@
 <template>
 	<Dialog
 		modal
+		dismissable-mask
 		:draggable="false"
 		:visible="isOpen"
 		:header="dialogHeader"
