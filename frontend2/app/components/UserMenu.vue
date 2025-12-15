@@ -30,46 +30,19 @@
 				</div>
 
 				<div class="theme-selector">
-					<ButtonGroup
-						role="group"
+					<SelectButton
+						:model-value="currentTheme"
+						:options="themeOptions"
+						size="small"
+						option-label="label"
+						option-value="value"
 						aria-label="Theme selector"
-					>
-						<Button
-							class="theme-selector-button"
-							size="small"
-							:severity="currentTheme === ThemeMode.Light ? 'primary' : 'secondary'"
-							:aria-pressed="currentTheme === ThemeMode.Light"
-							aria-label="Light theme"
-							@click="setTheme(ThemeMode.Light)"
-						>
-							Light
-						</Button>
-
-						<Button
-							class="theme-selector-button"
-							size="small"
-							:severity="currentTheme === ThemeMode.Auto ? 'primary' : 'secondary'"
-							:aria-pressed="currentTheme === ThemeMode.Auto"
-							aria-label="Auto theme"
-							@click="setTheme(ThemeMode.Auto)"
-						>
-							Auto
-						</Button>
-
-						<Button
-							class="theme-selector-button"
-							size="small"
-							:severity="currentTheme === ThemeMode.Dark ? 'primary' : 'secondary'"
-							:aria-pressed="currentTheme === ThemeMode.Dark"
-							aria-label="Dark theme"
-							@click="setTheme(ThemeMode.Dark)"
-						>
-							Dark
-						</Button>
-					</ButtonGroup>
+						@update:model-value="setTheme"
+					/>
 				</div>
 			</div>
 		</template>
+
 		<template #item="{ item }">
 			<a
 				class="menu-item-link"
@@ -88,8 +61,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import Menu from "primevue/menu";
-import Button from "primevue/button";
-import ButtonGroup from "primevue/buttongroup";
+import SelectButton from "primevue/selectbutton";
 import { ThemeMode, useTheme } from "../composables/useTheme";
 
 const props = defineProps<{
@@ -131,6 +103,21 @@ const emit = defineEmits<{
 const menu = ref();
 
 const { currentTheme, setTheme } = useTheme();
+
+const themeOptions = computed(() => [
+	{
+		label: "Light",
+		value: ThemeMode.Light
+	},
+	{
+		label: "Auto",
+		value: ThemeMode.Auto
+	},
+	{
+		label: "Dark",
+		value: ThemeMode.Dark
+	}
+]);
 
 const menuItems = computed(() => [
 	{
@@ -230,11 +217,11 @@ defineExpose({
 	margin-top: 1rem;
 }
 
-.theme-selector :deep(.p-buttongroup) {
+.theme-selector :deep(.p-selectbutton) {
 	width: 100%;
 }
 
-.theme-selector-button {
+.theme-selector :deep(.p-selectbutton .p-togglebutton) {
 	flex: 1;
 }
 </style>
