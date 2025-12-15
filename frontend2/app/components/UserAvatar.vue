@@ -1,24 +1,34 @@
 <template>
 	<div class="avatar">
 		<OverlayBadge
-			:value="user.level || undefined"
+			v-if="user?.level"
+			:value="user?.level"
 			size="small"
 			class="avatar-badge"
 		>
 			<Avatar
-				:label="user.username.charAt(0).toUpperCase()"
-				:image="user.avatar || undefined"
-				size="large"
+				:label="monogram"
+				:image="user?.picture"
+				:size="size"
+				:class="['avatar-avatar', `avatar-avatar--${size ?? 'normal'}`]"
 				shape="circle"
-				class="avatar-avatar"
 			/>
 		</OverlayBadge>
 
+		<Avatar
+			v-else
+			:label="monogram"
+			:image="user?.picture"
+			:size="size"
+			:class="['avatar-avatar', `avatar-avatar--${size ?? 'normal'}`]"
+			shape="circle"
+		/>
+
 		<div
-			v-if="user.levelProgress !== undefined"
+			v-if="user?.levelProgress"
 			class="avatar-progress"
 			:style="{
-				'--progress': `${user.levelProgress}%`
+				'--progress': `${user?.levelProgress}%`
 			}"
 		/>
 	</div>
@@ -28,14 +38,26 @@
 import Avatar from "primevue/avatar";
 import OverlayBadge from "primevue/overlaybadge";
 
-defineProps<{
+const props = defineProps<{
+	size?: "small" | "normal" | "large" | "xlarge";
 	user: {
-		username: string;
-		level: number;
+		name?: string;
+		username?: string;
+		level?: number;
 		levelProgress?: number;
-		avatar: string;
-	};
+		picture?: string;
+	} | null;
 }>();
+
+const monogram = computed(() => {
+	if (props.user?.picture) {
+		return null;
+	}
+
+	const name = props.user?.name ?? props.user?.username;
+	return name?.charAt(0)
+		.toLocaleUpperCase();
+});
 </script>
 
 <style scoped>
@@ -74,5 +96,11 @@ defineProps<{
 	transform-origin: 100% 100%;
 	outline-width: 0;
 	border-radius: 999px;
+}
+
+.avatar-avatar--small {
+	width: 16px;
+	height: 16px;
+	font-size: 0.7rem;
 }
 </style>

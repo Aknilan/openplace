@@ -72,6 +72,7 @@
 							@click="toggleUserMenu"
 						>
 							<UserAvatar
+								size="large"
 								:user="user"
 							/>
 						</Button>
@@ -86,6 +87,7 @@
 						@click="toggleUserMenu"
 					>
 						<UserAvatar
+							size="large"
 							:user="user"
 						/>
 					</Button>
@@ -732,9 +734,11 @@ const goToRandom = async () => {
 };
 
 const handleSearch = async () => {
-	isSearchOpen.value = true;
-	await nextTick();
-	searchBoxRef.value?.focusInput();
+	isSearchOpen.value = !isSearchOpen.value;
+	if (isSearchOpen.value) {
+		await nextTick();
+		searchBoxRef.value?.focusInput();
+	}
 };
 
 const handleSearchSelect = (bbox: [number, number, number, number]) => {

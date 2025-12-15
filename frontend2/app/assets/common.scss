@@ -18,6 +18,7 @@
 		--p-toast-warn-background: var(--p-content-background);
 		--p-toast-success-background: var(--p-content-background);
 		--p-toast-info-background: var(--p-content-background);
+		--p-tooltip-padding: 0.25rem;
 	}
 
 	:root.app-dark {
@@ -33,6 +34,11 @@
 	body {
 		user-select: none;
 		cursor: default;
+	}
+
+	// Tooltip
+	.p-tooltip-text {
+		font-size: 0.8rem;
 	}
 }
 

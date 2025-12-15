@@ -10,31 +10,21 @@
 					<div class="avatar-container">
 						<UserAvatar
 							:user="user"
+							size="large"
 						/>
 					</div>
 					<div class="user-details">
 						<div class="user-name-row">
-							<span class="user-name">{{ user.username }}</span>
-							<span class="user-id">#{{ user.id }}</span>
-							<span
-								v-if="user.verified"
-								v-tooltip.top="'This player has been verified by an administrator of this instance.'"
-								class="user-verified"
-							>
-								<Icon name="verified" />
-							</span>
-							<span
-								v-if="countryCode"
-								class="country-flag"
-							>
-								<FlagIcon :code="countryCode" />
-							</span>
+							<UserLine
+								:user="userLine"
+								:show-avatar="false"
+							/>
 						</div>
 						<div class="user-stat">
-							<span>Pixels painted: {{ user.pixelsPainted.toLocaleString() }}</span>
+							Pixels painted: {{ user?.pixelsPainted.toLocaleString() }}
 						</div>
 						<div class="user-stat">
-							<span>Level {{ user.level }} ({{ user.levelProgress }}%)</span>
+							Level {{ user?.level }} ({{ user?.levelProgress }}%)
 						</div>
 					</div>
 				</div>
@@ -100,7 +90,6 @@ import { computed, ref } from "vue";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
 import ButtonGroup from "primevue/buttongroup";
-import { COUNTRIES } from "../../../src/utils/country";
 import { ThemeMode, useTheme } from "../composables/useTheme";
 
 const props = defineProps<{
@@ -114,15 +103,23 @@ const props = defineProps<{
 		pixelsPainted: number;
 		avatar: string;
 		equippedFlag: number;
-	};
+	} | null;
 }>();
 
-const countryCode = computed(() => {
-	if (!props.user.equippedFlag) {
+const userLine = computed(() => {
+	const user = props.user;
+	if (!user) {
 		return null;
 	}
-	const country = COUNTRIES.find(item => item.id === props.user.equippedFlag);
-	return country?.code ?? null;
+
+	return {
+		id: user.id,
+		name: user.username,
+		allianceId: 0,
+		allianceName: "",
+		equippedFlag: user.equippedFlag,
+		verified: user.verified
+	};
 });
 
 const emit = defineEmits<{
@@ -198,6 +195,7 @@ defineExpose({
 	gap: 0.25rem;
 	font-size: 0.875rem;
 	color: var(--p-text-muted-color);
+	font-feature-settings: "tnum";
 }
 
 .user-stat i {
