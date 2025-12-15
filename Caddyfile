@@ -9,7 +9,7 @@ http://localhost:8000, https://localhost:8080 {
 		@get method GET
 		reverse_proxy @get {$FRONTEND_HOST:localhost}:{$FRONTEND_PORT:3001}
 	}
-	handle /icons/* {
+	handle /flags/* {
 		reverse_proxy {$FRONTEND_HOST:localhost}:{$FRONTEND_PORT:3001}
 	}
 	handle /_nuxt/* {
