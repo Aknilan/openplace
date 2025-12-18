@@ -10,6 +10,8 @@ const currentTheme = ref<ThemeMode>(ThemeMode.Auto);
 const isDarkMode = ref(false);
 
 export function useTheme() {
+	let darkModeQuery: MediaQueryList | null = null;
+
 	const initTheme = () => {
 		const theme = localStorage["theme"] as ThemeMode ?? ThemeMode.Auto;
 		currentTheme.value = theme;
@@ -39,14 +41,23 @@ export function useTheme() {
 	onMounted(() => {
 		initTheme();
 
-		const darkModeQuery = globalThis.matchMedia("(prefers-color-scheme: dark)");
-		darkModeQuery.addEventListener("change", (e) => {
-			if (currentTheme.value === ThemeMode.Auto) {
-				isDarkMode.value = e.matches;
-				applyTheme(ThemeMode.Auto);
-			}
-		});
+		darkModeQuery = globalThis.matchMedia("(prefers-color-scheme: dark)");
+		darkModeQuery.addEventListener("change", themeChanged);
 	});
+
+	onUnmounted(() => {
+		if (darkModeQuery) {
+			darkModeQuery.removeEventListener("change", themeChanged);
+			darkModeQuery = null;
+		}
+	});
+
+	const themeChanged = (e: MediaQueryListEvent) => {
+		if (currentTheme.value === ThemeMode.Auto) {
+			isDarkMode.value = e.matches;
+			applyTheme(ThemeMode.Auto);
+		}
+	};
 
 	return {
 		currentTheme: computed(() => currentTheme.value),
