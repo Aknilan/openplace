@@ -522,7 +522,8 @@ export default function (app: App) {
 					.json(createErrorResponse("Bad Request", HTTP_STATUS.BAD_REQUEST));
 			}
 
-			const validationError = validatePixelInfo({ season, tileX, tileY, x: x0, y: y0 }) ?? validatePixelInfo({ season, tileX, tileY, x: x1, y: y1 });
+			const validationError = validatePixelInfo({ season, tileX, tileY, x: x0, y: y0 }) ??
+				validatePixelInfo({ season, tileX, tileY, x: x1, y: y1 });
 			if (validationError) {
 				return res.status(HTTP_STATUS.BAD_REQUEST)
 					.json(createErrorResponse(validationError, HTTP_STATUS.BAD_REQUEST));
@@ -530,10 +531,16 @@ export default function (app: App) {
 
 			const result = await pixelService.getPixelInfo({ season: 0, tileX, tileY, x0, y0, x1, y1 });
 			const paintedBy = result.paintedBy ?? [];
-			return res.json({
-				region: result.region,
-				paintedBy: paintedBy.length === 0 ? null : paintedBy.map(item => item.id)
-			});
+
+			const buffer = new ArrayBuffer(paintedBy.length * 4);
+			const view = new DataView(buffer);
+			for (const [i, item] of paintedBy.entries()) {
+				view.setUint32(i * 4, item.id, true);
+			}
+
+			return res.status(HTTP_STATUS.OK)
+				.setHeader("Content-Type", "application/octet-stream")
+				.send(Buffer.from(buffer));
 		} catch (error) {
 			console.error("Error getting pixel info:", error);
 			return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
