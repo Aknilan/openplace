@@ -15,7 +15,7 @@
 		</span>
 
 		<span class="user-line-name user-line-select">
-			<b>{{ user.name ?? user.username }}</b>
+			<b>{{ user.name }}</b>
 			<i>#</i>
 			<span>{{ user.id }}</span>
 		</span>
@@ -71,8 +71,8 @@ export interface UserLineUser {
 	id: number;
 	name?: string;
 	username?: string;
-	allianceId: number;
-	allianceName: string;
+	allianceId?: number;
+	allianceName?: string;
 	equippedFlag: number;
 	discord?: string;
 	discordUserId?: string;

@@ -24,7 +24,7 @@
 							Pixels painted: {{ user?.pixelsPainted.toLocaleString() }}
 						</div>
 						<div class="user-stat">
-							Level {{ user?.level }} ({{ user?.levelProgress }}%)
+							Level {{ level }} ({{ levelProgress }}%)
 						</div>
 					</div>
 				</div>
@@ -34,10 +34,11 @@
 						:model-value="currentTheme"
 						:options="themeOptions"
 						size="small"
+						fluid
 						option-label="label"
 						option-value="value"
 						aria-label="Theme selector"
-						@update:model-value="setTheme"
+						@update:model-value="setThemeFromButton"
 					/>
 				</div>
 			</div>
@@ -66,17 +67,11 @@ import { ThemeMode, useTheme } from "../composables/useTheme";
 
 const props = defineProps<{
 	isOpen: boolean;
-	user: {
-		username: string;
-		id: number;
-		level: number;
-		verified: boolean;
-		levelProgress: number;
-		pixelsPainted: number;
-		avatar: string;
-		equippedFlag: number;
-	} | null;
+	user: UserProfile | null;
+	levelProgress: number | null;
 }>();
+
+const level = computed(() => Math.floor(props.user?.level ?? 0));
 
 const userLine = computed(() => {
 	const user = props.user;
@@ -85,12 +80,12 @@ const userLine = computed(() => {
 	}
 
 	return {
-		id: user.id,
-		name: user.username,
+		id: user?.id,
+		name: user?.name,
 		allianceId: 0,
 		allianceName: "",
-		equippedFlag: user.equippedFlag,
-		verified: user.verified
+		equippedFlag: user?.equippedFlag,
+		verified: user?.verified
 	};
 });
 
@@ -134,6 +129,14 @@ const menuItems = computed(() => [
 		}
 	}
 ]);
+
+const setThemeFromButton = (value: ThemeMode) => {
+	// For whatever reason, you can deselect all options in SelectButton…
+	value ??= ThemeMode.Auto;
+	if (value !== currentTheme.value) {
+		setTheme(value);
+	}
+};
 
 defineExpose({
 	toggle: (event: Event) => {
@@ -215,13 +218,5 @@ defineExpose({
 
 .theme-selector {
 	margin-top: 1rem;
-}
-
-.theme-selector :deep(.p-selectbutton) {
-	width: 100%;
-}
-
-.theme-selector :deep(.p-selectbutton .p-togglebutton) {
-	flex: 1;
 }
 </style>

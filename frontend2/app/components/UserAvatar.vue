@@ -1,13 +1,13 @@
 <template>
 	<div class="avatar">
 		<OverlayBadge
-			v-if="user?.level"
-			:value="user?.level"
+			v-if="level"
+			:value="level"
 			size="small"
 			class="avatar-badge"
 		>
 			<Avatar
-				:label="monogram"
+				:label="monogram ?? undefined"
 				:image="user?.picture"
 				:size="size"
 				:class="['avatar-avatar', `avatar-avatar--${size ?? 'normal'}`]"
@@ -17,7 +17,7 @@
 
 		<Avatar
 			v-else
-			:label="monogram"
+			:label="monogram ?? undefined"
 			:image="user?.picture"
 			:size="size"
 			:class="['avatar-avatar', `avatar-avatar--${size ?? 'normal'}`]"
@@ -25,10 +25,10 @@
 		/>
 
 		<div
-			v-if="user?.levelProgress"
+			v-if="levelProgress"
 			class="avatar-progress"
 			:style="{
-				'--progress': `${user?.levelProgress}%`
+				'--progress': `${levelProgress}%`
 			}"
 		/>
 	</div>
@@ -44,18 +44,19 @@ const props = defineProps<{
 		name?: string;
 		username?: string;
 		level?: number;
-		levelProgress?: number;
 		picture?: string;
 	} | null;
+	levelProgress?: number | null;
 }>();
+
+const level = computed(() => Math.floor(props.user?.level ?? 0));
 
 const monogram = computed(() => {
 	if (props.user?.picture) {
 		return null;
 	}
 
-	const name = props.user?.name ?? props.user?.username;
-	return name?.charAt(0)
+	return props.user?.name?.charAt(0)
 		.toLocaleUpperCase();
 });
 </script>

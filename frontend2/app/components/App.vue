@@ -73,7 +73,8 @@
 						>
 							<UserAvatar
 								size="large"
-								:user="user"
+								:user="userProfile"
+								:level-progress="levelProgress"
 							/>
 						</Button>
 					</OverlayBadge>
@@ -88,14 +89,16 @@
 					>
 						<UserAvatar
 							size="large"
-							:user="user"
+							:user="userProfile"
+							:level-progress="levelProgress"
 						/>
 					</Button>
 
 					<UserMenu
 						ref="userMenuRef"
 						:is-open="isUserMenuOpen"
-						:user="user"
+						:user="userProfile"
+						:level-progress="levelProgress"
 						@close="isUserMenuOpen = false"
 						@logout="handleLogOut"
 						@open-notifications="handleOpenNotifications"
@@ -333,23 +336,11 @@ const saveCurrentLocation = () => {
 	}
 };
 
-const user = computed<UserProfile | null>(() => {
-	const value = userProfile.value;
-	if (!value) {
+const levelProgress = computed(() => {
+	if (!userProfile.value) {
 		return null;
 	}
-
-	const levelProgress = Math.round((value.level - Math.floor(value.level)) * 100);
-
-	return {
-		...value,
-		username: value.name,
-		verified: value.verified,
-		level: Math.floor(value.level),
-		levelProgress,
-		pixelsPainted: Math.floor(value.pixelsPainted),
-		avatar: value.picture
-	};
+	return Math.round((userProfile.value.level - Math.floor(userProfile.value.level)) * 100);
 });
 
 const updateUserProfile = async () => {

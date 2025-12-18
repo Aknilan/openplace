@@ -132,11 +132,7 @@ import BuyButton from "./store/BuyButton.vue";
 
 const props = defineProps<{
 	isOpen: boolean;
-	userProfile: {
-		droplets: number;
-		flagsBitmap: string;
-		equippedFlag: number;
-	} | null;
+	userProfile: UserProfile | null;
 }>();
 
 const emit = defineEmits<{

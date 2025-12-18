@@ -27,7 +27,7 @@
 							v-tooltip.top="'Pixel coordinates'"
 							class="pixel-info-select"
 						>
-							{{ coords?.pixel[0] }}&times;{{ coords?.pixel[1] }}
+							{{ (coords?.pixel[0] ?? 0) + 1 }}&times;{{ (coords?.pixel[1] ?? 0) + 1 }}
 						</span>
 					</div>
 
