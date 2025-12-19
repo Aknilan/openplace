@@ -31,7 +31,8 @@
 							:aria-label="isExpanded ? 'Show free colors' : 'Show all colors'"
 							@click="isExpanded = !isExpanded"
 						>
-							<Icon :name="isExpanded ? 'zoom_out' : 'zoom_in'" />
+							<ZoomOutIcon v-if="isExpanded" />
+							<ZoomInIcon v-else />
 						</Button>
 
 						<Button
@@ -44,11 +45,12 @@
 							:aria-label="isBottom ? 'Move to top' : 'Move to bottom'"
 							@click="isBottom = !isBottom"
 						>
-							<Icon :name="isBottom ? 'arrow_up' : 'arrow_down'" />
+							<ArrowUpIcon v-if="isBottom" />
+							<ArrowDownIcon v-else />
 						</Button>
 					</div>
 
-					<Icon name="paint" class="palette-header-icon" />
+					<PaintIcon class="palette-header-icon" />
 
 					<h3 id="palette-label" class="palette-header-label">
 						Paint {{ pixelCount.toLocaleString() }} {{ pixelCount === 1 ? "pixel" : "pixels" }}
@@ -65,7 +67,7 @@
 							:aria-label="isEraserMode ? 'Switch to painting' : 'Switch to eraser'"
 							@click="$emit('toggleEraser')"
 						>
-							<Icon name="eraser" />
+							<EraserIcon />
 						</Button>
 
 						<Button
@@ -78,7 +80,7 @@
 							aria-label="Close"
 							@click="$emit('close')"
 						>
-							<Icon name="close" />
+							<CloseIcon />
 						</Button>
 					</div>
 				</div>
@@ -102,9 +104,8 @@
 								:style="{ backgroundColor: item.cssValue }"
 							/>
 
-							<Icon
+							<LockIcon
 								v-if="!item.isUnlocked"
-								name="lock"
 								class="color-button-lock"
 							/>
 						</Button>
@@ -131,6 +132,14 @@ import { isColorUnlocked, PAID_PALETTE_INDEX, palette, type PaletteColor } from 
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useViewport } from "~/composables/useViewport";
+import ArrowDownIcon from "~/components/icons/ArrowDownIcon.vue";
+import ArrowUpIcon from "~/components/icons/ArrowUpIcon.vue";
+import CloseIcon from "~/components/icons/CloseIcon.vue";
+import EraserIcon from "~/components/icons/EraserIcon.vue";
+import LockIcon from "~/components/icons/LockIcon.vue";
+import PaintIcon from "~/components/icons/PaintIcon.vue";
+import ZoomInIcon from "~/components/icons/ZoomInIcon.vue";
+import ZoomOutIcon from "~/components/icons/ZoomOutIcon.vue";
 
 const props = defineProps<{
 	isOpen: boolean;

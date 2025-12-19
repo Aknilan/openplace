@@ -7,7 +7,7 @@
 		class="paint-button"
 		@click="$emit('click')"
 	>
-		<Icon name="paint" class="paint-button-icon" />
+		<PaintIcon class="paint-button-icon" />
 		<span :class="{ 'shimmer-text': hasPendingPixels }">
 			Paint {{ charges.toLocaleString() }}/{{ maxCharges.toLocaleString() }}
 		</span>
@@ -19,6 +19,7 @@
 import Button from "primevue/button";
 import { computed } from "vue";
 import { useViewport } from "~/composables/useViewport";
+import PaintIcon from "~/components/icons/PaintIcon.vue";
 
 const props = defineProps<{
 	charges: number;

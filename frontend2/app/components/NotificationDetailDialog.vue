@@ -16,7 +16,7 @@
 				shape="circle"
 				size="large"
 			>
-				<Icon :name="notification.icon" />
+				<DynamicIcon :name="notification.icon" />
 			</Avatar>
 
 			<div class="notification-content">

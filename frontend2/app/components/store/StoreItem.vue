@@ -2,7 +2,7 @@
 	<Card class="store-item">
 		<template #title>
 			<div class="store-item-title">
-				<Icon :name="icon" />
+				<slot name="icon" />
 				{{ title }}
 			</div>
 		</template>
@@ -22,7 +22,7 @@
 						:disabled="loading || !canDecrement"
 						@click="handleDecrement"
 					>
-						<Icon name="zoom_out" />
+						<ZoomOutIcon />
 					</Button>
 
 					<InputNumber
@@ -44,7 +44,7 @@
 						:disabled="loading || !canIncrement"
 						@click="handleIncrement"
 					>
-						<Icon name="zoom_in" />
+						<ZoomInIcon />
 					</Button>
 				</div>
 
@@ -62,14 +62,14 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
-import Icon from "../Icon.vue";
 import BuyButton from "./BuyButton.vue";
+import ZoomInIcon from "~/components/icons/ZoomInIcon.vue";
+import ZoomOutIcon from "~/components/icons/ZoomOutIcon.vue";
 
 const props = defineProps<{
 	modelValue: number;
 	title: string;
 	subtitle: string;
-	icon: string;
 	cost: number;
 	userDroplets: number;
 	loading: boolean;

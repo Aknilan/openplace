@@ -20,10 +20,9 @@
 			<span>{{ user.id }}</span>
 		</span>
 
-		<Icon
+		<VerifiedIcon
 			v-if="user.verified"
 			v-tooltip.top="'This player has been verified by an administrator of this instance.'"
-			name="verified"
 			class="user-line-verified"
 		/>
 
@@ -37,7 +36,7 @@
 		<span
 			v-if="user.discord"
 			class="user-line-discord user-line-select">
-			<Icon name="discord" />
+			<DiscordIcon />
 
 			<a
 				v-if="user.discordUserId"
@@ -66,6 +65,8 @@
 
 <script setup lang="ts">
 import { COUNTRIES } from "../../../src/utils/country";
+import DiscordIcon from "~/components/icons/DiscordIcon.vue";
+import VerifiedIcon from "~/components/icons/VerifiedIcon.vue";
 
 export interface UserLineUser {
 	id: number;

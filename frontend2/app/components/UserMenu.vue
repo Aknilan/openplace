@@ -49,10 +49,6 @@
 				class="menu-item-link"
 				@click="(event) => item.command?.({ originalEvent: event, item })"
 			>
-				<Icon
-					v-if="item.icon"
-					:name="item.icon"
-				/>
 				<span>{{ item.label }}</span>
 			</a>
 		</template>

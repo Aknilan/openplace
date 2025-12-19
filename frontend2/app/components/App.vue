@@ -35,28 +35,32 @@
 			<div class="app-overlays-zoom">
 				<MapButton
 					v-tooltip.right="'About openplace'"
-					icon="info"
 					@click="isAboutOpen = true"
-				/>
+				>
+					<InfoIcon />
+				</MapButton>
 
 				<MapButton
 					v-tooltip.right="'Zoom in'"
-					icon="zoom_in"
 					@click="zoomIn"
-				/>
+				>
+					<ZoomInIcon />
+				</MapButton>
 
 				<MapButton
 					v-tooltip.right="'Zoom out'"
-					icon="zoom_out"
 					@click="zoomOut"
-				/>
+				>
+					<ZoomOutIcon />
+				</MapButton>
 
 				<MapButton
 					v-if="mapBearing !== 0"
 					v-tooltip.right="'Reset map rotation'"
-					icon="compass"
 					@click="resetMapRotation"
-				/>
+				>
+					<CompassIcon />
+				</MapButton>
 			</div>
 
 			<div class="app-overlays-profile">
@@ -121,21 +125,25 @@
 				<MapButton
 					v-if="isLoggedIn"
 					v-tooltip.left="'Store'"
-					icon="store"
 					@click="isStoreOpen = true"
-				/>
+				>
+					<StoreIcon />
+				</MapButton>
 
 				<MapButton
 					v-tooltip.left="'Toggle satellite'"
-					:icon="isSatellite ? 'map_vector' : 'map_satellite'"
 					@click="toggleSatellite"
-				/>
+				>
+					<MapVectorIcon v-if="isSatellite" />
+					<MapSatelliteIcon v-else />
+				</MapButton>
 
 				<MapButton
 					v-tooltip.left="'Search for a location'"
-					icon="explore"
 					@click="handleSearch"
-				/>
+				>
+					<ExploreIcon />
+				</MapButton>
 			</div>
 
 			<div
@@ -230,6 +238,14 @@ import { useTheme } from "~/composables/useTheme";
 import { useViewport } from "~/composables/useViewport";
 import SearchBox from "~/components/SearchBox.vue";
 import { DEFAULT_LOCATIONS } from "~/utils/default-locations";
+import CompassIcon from "~/components/icons/CompassIcon.vue";
+import ExploreIcon from "~/components/icons/ExploreIcon.vue";
+import InfoIcon from "~/components/icons/InfoIcon.vue";
+import MapSatelliteIcon from "~/components/icons/MapSatelliteIcon.vue";
+import MapVectorIcon from "~/components/icons/MapVectorIcon.vue";
+import StoreIcon from "~/components/icons/StoreIcon.vue";
+import ZoomInIcon from "~/components/icons/ZoomInIcon.vue";
+import ZoomOutIcon from "~/components/icons/ZoomOutIcon.vue";
 
 interface Pixel {
 	id: string;

@@ -6,12 +6,14 @@
 		rounded
 		:class="['buy-button', `buy-button--${size ?? 'large'}`]"
 	>
-		<Icon name="droplet" class="buy-button-icon" />
+		<DropletIcon class="buy-button-icon" />
 		{{ cost.toLocaleString() }}
 	</Button>
 </template>
 
 <script setup lang="ts">
+import DropletIcon from "~/components/icons/DropletIcon.vue";
+
 defineProps<{
 	size?: "small" | "large";
 	cost: number;

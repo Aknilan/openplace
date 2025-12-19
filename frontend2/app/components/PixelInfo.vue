@@ -16,7 +16,7 @@
 					<span>{{ pixelData?.region.name }}</span>
 
 					<div class="pixel-info-row pixel-info-coords">
-						<Icon name="grid" />
+						<GridIcon />
 						<span
 							v-tooltip.top="'Tile coordinates'"
 							class="pixel-info-select"
@@ -41,7 +41,7 @@
 						aria-label="Close"
 						@click="$emit('close')"
 					>
-						<Icon name="close" />
+						<CloseIcon />
 					</Button>
 				</div>
 
@@ -116,7 +116,8 @@
 						:outlined="!isFavorite"
 						@click="toggleFavorite"
 					>
-						<Icon :name="isFavorite ? 'favorite_off' : 'favorite_on'" />
+						<FavoriteOffIcon v-if="isFavorite" />
+						<FavoriteOnIcon v-else />
 						{{ isFavorite ? 'Unfavorite' : 'Favorite' }}
 					</Button>
 
@@ -126,7 +127,7 @@
 						outlined
 						@click="$emit('report')"
 					>
-						<Icon name="report" />
+						<ReportIcon />
 						Report
 					</Button>
 				</div>
@@ -147,6 +148,11 @@ import { useFavorites } from "~/composables/useFavorites";
 import { type UserProfile, useUserProfile } from "~/composables/useUserProfile";
 import { useErrorToast } from "~/composables/useErrorToast";
 import { COUNTRIES } from "../../../src/utils/country";
+import CloseIcon from "~/components/icons/CloseIcon.vue";
+import FavoriteOffIcon from "~/components/icons/FavoriteOffIcon.vue";
+import FavoriteOnIcon from "~/components/icons/FavoriteOnIcon.vue";
+import GridIcon from "~/components/icons/GridIcon.vue";
+import ReportIcon from "~/components/icons/ReportIcon.vue";
 
 interface PixelData {
 	paintedBy: {

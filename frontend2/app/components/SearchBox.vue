@@ -20,7 +20,7 @@
 							text
 							@click="close"
 						>
-							<Icon name="back" />
+							<BackIcon />
 						</Button>
 
 						<AutoComplete
@@ -48,7 +48,7 @@
 							text
 							@click="goToRandom"
 						>
-							<Icon name="random" />
+							<RandomIcon />
 						</Button>
 					</InputGroup>
 				</div>
@@ -63,8 +63,9 @@ import InputGroup from "primevue/inputgroup";
 import AutoComplete from "primevue/autocomplete";
 import Button from "primevue/button";
 import { useErrorToast } from "~/composables/useErrorToast";
-import Icon from "~/components/Icon.vue";
 import { DEFAULT_LOCATIONS } from "~/utils/default-locations";
+import BackIcon from "~/components/icons/BackIcon.vue";
+import RandomIcon from "~/components/icons/RandomIcon.vue";
 
 interface AutocompleteResult {
 	type: "Feature";

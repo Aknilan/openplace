@@ -24,7 +24,7 @@
 					:aria-label="`${userProfile?.droplets?.toLocaleString()} droplets`"
 				>
 					<span class="droplet-icon">
-						<Icon name="droplet" />
+						<DropletIcon />
 					</span>
 					<span class="droplet-amount">{{ userProfile?.droplets?.toLocaleString() }}</span>
 				</div>
@@ -45,30 +45,36 @@
 							v-model="maxChargesQuantity"
 							title="Max Charges"
 							subtitle="Increase your limit of paint charges by 5"
-							icon="charge"
 							:cost="MAX_CHARGES_COST"
 							:user-droplets="userProfile?.droplets ?? 0"
 							:loading="purchasing"
 							@purchase="purchaseMaxCharges"
-						/>
+						>
+							<template #icon>
+								<ChargeIcon />
+							</template>
+						</StoreItem>
 
 						<StoreItem
 							v-model="paintChargesQuantity"
 							title="Paint Charges"
 							subtitle="Instantly get 30 paint charges"
-							icon="paint"
 							:cost="PAINT_CHARGES_COST"
 							:user-droplets="userProfile?.droplets ?? 0"
 							:loading="purchasing"
 							@purchase="purchasePaintCharges"
-						/>
+						>
+							<template #icon>
+								<PaintIcon />
+							</template>
+						</StoreItem>
 					</div>
 
 					<!--
 					TODO
 					<Card class="store-item store-item--disabled">
 						<template #title>
-							<Icon name="manage_accounts" />
+							<ManageAccountsIcon />
 							Profile Picture
 						</template>
 						<template #subtitle>
@@ -84,7 +90,7 @@
 					<Card class="store-item">
 						<template #title>
 							<div class="store-item-title">
-								<Icon name="map_vector" />
+								<MapVectorIcon />
 								Flags
 							</div>
 						</template>
@@ -137,7 +143,7 @@
 					<Card class="store-item">
 						<template #title>
 							<div class="store-item-title">
-								<Icon name="palette" />
+								<PaletteIcon />
 								Colors
 							</div>
 						</template>
@@ -201,6 +207,11 @@ import { WplaceBitMap } from "../../../src/utils/bitmap";
 import { COUNTRIES } from "../../../src/utils/country";
 import BuyButton from "./store/BuyButton.vue";
 import { isColorUnlocked, PAID_PALETTE_INDEX, palette, type PaletteColor } from "~/utils/palette";
+import ChargeIcon from "~/components/icons/ChargeIcon.vue";
+import DropletIcon from "~/components/icons/DropletIcon.vue";
+import MapVectorIcon from "~/components/icons/MapVectorIcon.vue";
+import PaintIcon from "~/components/icons/PaintIcon.vue";
+import PaletteIcon from "~/components/icons/PaletteIcon.vue";
 
 interface PaletteItem extends PaletteColor {
 	cssValue: string;

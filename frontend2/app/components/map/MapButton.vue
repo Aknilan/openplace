@@ -6,15 +6,9 @@
 		rounded
 		class="map-button"
 	>
-		<Icon :name="icon" />
+		<slot />
 	</Button>
 </template>
-
-<script setup lang="ts">
-defineProps<{
-	icon: string;
-}>();
-</script>
 
 <style scoped>
 .map-button {
