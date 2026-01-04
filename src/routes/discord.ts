@@ -27,16 +27,6 @@ export default function (app: App) {
 
 	app.get("/discord/unlink", (_req, res) => res.redirect("/login/discord"));
 
-	app.get("/registration/link", optionalAuthMiddleware, async (req: AuthenticatedRequest, res) => {
-		if (!req.user) {
-			return res.redirect("/login");
-		}
-
-		const html = await fs.readFile("./src/public/login-nextstep.html", "utf8");
-		res.setHeader("Content-Type", "text/html");
-		return res.send(html);
-	});
-
 	app.get("/discord/configured", authMiddleware, (_req, res) => {
 		if (!discordService.isConfigured) {
 			return res.status(503)
