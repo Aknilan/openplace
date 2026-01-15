@@ -59,7 +59,7 @@
 
 					<template #option="slotProps">
 						<div class="leaderboard-country-option">
-							<FlagIcon :code="getCountryCode(slotProps.index) ?? ''" />
+							<FlagIcon :code="slotProps.option.code" />
 							<span>{{ slotProps.option.label }}</span>
 						</div>
 					</template>
@@ -230,7 +230,8 @@ const data = ref<LeaderboardEntry[]>([]);
 
 const countryOptions = computed(() => COUNTRIES.map(country => ({
 	label: country.name,
-	value: country.id
+	value: country.id,
+	code: country.code
 })));
 
 const getCountryCode = (countryId: number) => COUNTRIES.find((c) => c.id === countryId)?.code;
