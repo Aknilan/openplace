@@ -82,7 +82,7 @@ export interface UserLineUser {
 
 const props = defineProps<{
 	user: UserLineUser;
-	size?: "small" | "normal" | "large" | "xlarge";
+	size?: "tiny" | "small" | "normal" | "large" | "xlarge";
 	showAvatar?: boolean;
 }>();
 
@@ -105,6 +105,7 @@ const country = computed(() => COUNTRIES.find(item => item.id === props.user?.eq
 
 .user-line-avatar {
 	line-height: 0;
+	margin-inline-end: 0.25rem;
 }
 
 .user-line-name {

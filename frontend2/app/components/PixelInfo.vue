@@ -69,7 +69,7 @@
 							<UserLine
 								:user="pixelData.paintedBy"
 								:show-avatar="true"
-								size="small"
+								size="tiny"
 							>
 								<template #prefix>
 									<span class="pixel-info-label">Painted by:</span>
@@ -336,6 +336,10 @@ watch(() => props.coords, () => {
 	display: flex;
 	gap: 0.5rem;
 	font-size: 0.875rem;
+}
+
+.pixel-info-label {
+	margin-inline-end: 0.25rem;
 }
 
 .pixel-info-empty {

@@ -1,5 +1,7 @@
 <template>
-	<IconWrapper class="flag-icon-wrapper">
+	<IconWrapper
+		v-tooltip.top="name"
+		class="flag-icon-wrapper">
 		<svg :class="['flag-icon', useSvg ? 'flag-icon--svg' : null]" viewBox="0 0 36 36">
 			<use
 				v-if="useSvg"
@@ -21,13 +23,16 @@
 </template>
 
 <script setup lang="ts">
+import { COUNTRIES } from "../../../src/utils/country";
+
 const props = defineProps<{
-	code: string;
+	code?: string;
 }>();
 
 const useSvg = ref(false);
 
-const emoji = computed(() => String.fromCodePoint(...[...props.code].map(c => 0x1_F1_E6 - 65 + (c.codePointAt(0) ?? 0))));
+const name = computed(() => COUNTRIES.find(item => item.code === props.code)?.name);
+const emoji = computed(() => props.code ? String.fromCodePoint(...[...props.code].map(c => 0x1_F1_E6 - 65 + (c.codePointAt(0) ?? 0))) : "");
 
 onMounted(() => {
 	// Windows still doesn’t have flag emoji

@@ -39,7 +39,7 @@ import Avatar from "primevue/avatar";
 import OverlayBadge from "primevue/overlaybadge";
 
 const props = defineProps<{
-	size?: "small" | "normal" | "large" | "xlarge";
+	size?: "tiny" | "small" | "normal" | "large" | "xlarge";
 	user: {
 		name?: string;
 		username?: string;
@@ -107,9 +107,15 @@ const monogram = computed(() => {
 	image-rendering: pixelated;
 }
 
-.avatar-avatar--small {
+.avatar-avatar--tiny {
 	width: 16px;
 	height: 16px;
 	font-size: 0.7rem;
+}
+
+.avatar-avatar--small {
+	width: 24px;
+	height: 24px;
+	font-size: 0.85rem;
 }
 </style>

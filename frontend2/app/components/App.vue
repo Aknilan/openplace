@@ -131,6 +131,13 @@
 				</MapButton>
 
 				<MapButton
+					v-tooltip.left="'Leaderboard'"
+					@click="isLeaderboardOpen = true"
+				>
+					<StatsIcon />
+				</MapButton>
+
+				<MapButton
 					v-tooltip.left="'Toggle satellite'"
 					@click="toggleSatellite"
 				>
@@ -208,6 +215,12 @@
 			@refresh="handleStoreRefresh"
 		/>
 
+		<LeaderboardDialog
+			:is-open="isLeaderboardOpen"
+			@close="isLeaderboardOpen = false"
+			@navigate="handleLeaderboardNavigate"
+		/>
+
 		<NotificationDialog
 			:is-open="isNotificationsOpen"
 			@close="isNotificationsOpen = false"
@@ -228,6 +241,7 @@ import UserMenu from "~/components/UserMenu.vue";
 import PixelInfo from "~/components/PixelInfo.vue";
 import NotificationDialog from "~/components/NotificationDialog.vue";
 import StoreDialog, { StoreTab } from "~/components/StoreDialog.vue";
+import LeaderboardDialog from "~/components/LeaderboardDialog.vue";
 import { CLOSE_ZOOM_LEVEL, getPixelId, type LngLat, lngLatToTileCoords, type TileCoords, tileCoordsToLngLat, WIDE_ZOOM_LEVEL, ZOOM_LEVEL } from "~/utils/coordinates";
 import { type UserProfile, useUserProfile } from "~/composables/useUserProfile";
 import { useCharges } from "~/composables/useCharges";
@@ -243,6 +257,7 @@ import ExploreIcon from "~/components/icons/ExploreIcon.vue";
 import InfoIcon from "~/components/icons/InfoIcon.vue";
 import MapSatelliteIcon from "~/components/icons/MapSatelliteIcon.vue";
 import MapVectorIcon from "~/components/icons/MapVectorIcon.vue";
+import StatsIcon from "~/components/icons/StatsIcon.vue";
 import StoreIcon from "~/components/icons/StoreIcon.vue";
 import ZoomInIcon from "~/components/icons/ZoomInIcon.vue";
 import ZoomOutIcon from "~/components/icons/ZoomOutIcon.vue";
@@ -263,6 +278,7 @@ const isPixelInfoOpen = ref(false);
 const isNotificationsOpen = ref(false);
 const isAboutOpen = ref(false);
 const isStoreOpen = ref(false);
+const isLeaderboardOpen = ref(false);
 const isSearchOpen = ref(false);
 const notificationCount = ref(0);
 const selectedColor = ref("rgba(0,0,0,1)");
@@ -764,6 +780,12 @@ const handleSearchSelect = (bbox: [number, number, number, number]) => {
 	const centerLat = (minLat + maxLat) / 2;
 	mapRef.value?.flyToLocation(centerLat, centerLng, WIDE_ZOOM_LEVEL);
 	pushMapLocation([centerLng, centerLat], WIDE_ZOOM_LEVEL);
+};
+
+const handleLeaderboardNavigate = (coords: LngLat) => {
+	const [lng, lat] = coords;
+	mapRef.value?.flyToLocation(lat, lng, WIDE_ZOOM_LEVEL);
+	pushMapLocation(coords, WIDE_ZOOM_LEVEL);
 };
 </script>
 
