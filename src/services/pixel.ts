@@ -387,11 +387,14 @@ export class PixelService {
 	private async quantize(buffer: Buffer): Promise<Buffer> {
 		return await sharp(buffer)
 			.png({
-				adaptiveFiltering: false,
 				palette: true,
+				quality: 100,
+				colors: 256,
+				dither: 0,
 				compressionLevel: 8,
 				// More effort seems to have no effect on file size, but does impact speed
-				effort: 1
+				// Lower effort causes subtle color shifting in the palette
+				effort: 4
 			})
 			.toBuffer();
 	}
