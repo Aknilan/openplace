@@ -204,6 +204,10 @@ const handleSelectColor = (item: PaletteItem) => {
 	width: 100%;
 }
 
+.palette-card {
+	--p-card-body-padding: 1.25rem;
+}
+
 .palette-card--mobile {
 	--p-card-body-padding: 1rem;
 	font-size: 0.95em;
