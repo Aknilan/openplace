@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { COUNTRIES } from "../../../src/utils/country";
+import { COUNTRIES } from "~/utils/country";
 import DiscordIcon from "~/components/icons/DiscordIcon.vue";
 import VerifiedIcon from "~/components/icons/VerifiedIcon.vue";
 

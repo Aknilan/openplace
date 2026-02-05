@@ -203,8 +203,8 @@
 import Dialog from "primevue/dialog";
 import Card from "primevue/card";
 import Button from "primevue/button";
-import { WplaceBitMap } from "../../../src/utils/bitmap";
-import { COUNTRIES } from "../../../src/utils/country";
+import { WplaceBitMap } from "~/utils/bitmap";
+import { COUNTRIES } from "~/utils/country";
 import BuyButton from "./store/BuyButton.vue";
 import { isColorUnlocked, PAID_PALETTE_INDEX, palette, type PaletteColor } from "~/utils/palette";
 import ChargeIcon from "~/components/icons/ChargeIcon.vue";

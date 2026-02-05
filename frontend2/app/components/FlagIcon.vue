@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { COUNTRIES } from "../../../src/utils/country";
+import { COUNTRIES } from "~/utils/country";
 
 const props = defineProps<{
 	code?: string;
@@ -36,7 +36,9 @@ const emoji = computed(() => props.code ? String.fromCodePoint(...[...props.code
 
 onMounted(() => {
 	// Windows still doesn’t have flag emoji
-	useSvg.value = navigator.userAgent.includes(" Windows NT ");
+	if (import.meta.client) {
+		useSvg.value = navigator.userAgent.includes(" Windows NT ");
+	}
 });
 </script>
 

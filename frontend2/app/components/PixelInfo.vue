@@ -147,7 +147,7 @@ import { tileCoordsToLngLat } from "~/utils/coordinates";
 import { useFavorites } from "~/composables/useFavorites";
 import { type UserProfile, useUserProfile } from "~/composables/useUserProfile";
 import { useErrorToast } from "~/composables/useErrorToast";
-import { COUNTRIES } from "../../../src/utils/country";
+import { COUNTRIES } from "~/utils/country";
 import CloseIcon from "~/components/icons/CloseIcon.vue";
 import FavoriteOffIcon from "~/components/icons/FavoriteOffIcon.vue";
 import FavoriteOnIcon from "~/components/icons/FavoriteOnIcon.vue";

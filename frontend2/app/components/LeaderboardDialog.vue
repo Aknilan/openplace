@@ -193,7 +193,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ProgressSpinner from "primevue/progressspinner";
 import Message from "primevue/message";
-import { COUNTRIES } from "../../../src/utils/country";
+import { COUNTRIES } from "~/utils/country";
 
 const props = defineProps<{
 	isOpen: boolean;
