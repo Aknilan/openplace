@@ -12,6 +12,18 @@ export interface TileCoords {
 	pixel: Coords;
 }
 
+export interface MeasureArea {
+	topLeft: TileCoords;
+	bottomRight: TileCoords;
+}
+
+export interface RectCoords<T extends TileCoords | LngLat> {
+	topLeft: T;
+	topRight: T;
+	bottomLeft: T;
+	bottomRight: T;
+}
+
 export function lngLatToTileCoords(lngLat: LngLat): TileCoords {
 	const [lng, lat] = lngLat;
 	const n = Math.pow(2, ZOOM_LEVEL);
@@ -53,12 +65,7 @@ export function getPixelId(coords: TileCoords): string {
 	return `${tileX}-${tileY}-${x}-${y}`;
 }
 
-export function getPixelBounds(coords: TileCoords, inset = 0): {
-	topLeft: LngLat;
-	topRight: LngLat;
-	bottomLeft: LngLat;
-	bottomRight: LngLat;
-} {
+export function getPixelBounds(coords: TileCoords, inset = 0): RectCoords<LngLat> {
 	const [tileX, tileY] = coords.tile;
 	const [x, y] = coords.pixel;
 
@@ -82,7 +89,6 @@ export function getPixelBounds(coords: TileCoords, inset = 0): {
 	};
 }
 
-// Bresenham's line algorithm - get all pixels between two points
 export function getPixelsBetween(from: TileCoords, to: TileCoords): TileCoords[] {
 	const pixels: TileCoords[] = [];
 
@@ -139,4 +145,77 @@ export function getTileBounds(tileX: number, tileY: number): [LngLat, LngLat, Ln
 		bottomRight,
 		[topLeft[0], bottomRight[1]]
 	];
+}
+
+export function getPixelsInArea(rectCoords: RectCoords<TileCoords>): TileCoords[] {
+	const pixels: TileCoords[] = [];
+	const { topLeft, bottomRight } = rectCoords;
+	const [startTileX, startTileY] = topLeft.tile;
+	const [endTileX, endTileY] = bottomRight.tile;
+
+	for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+		for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+			const startX = tileX === startTileX ? topLeft.pixel[0] : 0;
+			const endX = tileX === endTileX ? bottomRight.pixel[0] : TILE_SIZE - 1;
+			const startY = tileY === startTileY ? topLeft.pixel[1] : 0;
+			const endY = tileY === endTileY ? bottomRight.pixel[1] : TILE_SIZE - 1;
+
+			for (let y = startY; y <= endY; y++) {
+				for (let x = startX; x <= endX; x++) {
+					pixels.push({
+						tile: [tileX, tileY],
+						pixel: [x, y]
+					});
+				}
+			}
+		}
+	}
+
+	return pixels;
+}
+
+export function createMeasureArea(topLeft: TileCoords, bottomRight: TileCoords): MeasureArea {
+	const [minX, maxX] = [
+		Math.min(topLeft.tile[0], bottomRight.tile[0]),
+		Math.max(topLeft.tile[0], bottomRight.tile[0])
+	];
+	const [minY, maxY] = [
+		Math.min(topLeft.tile[1], bottomRight.tile[1]),
+		Math.max(topLeft.tile[1], bottomRight.tile[1])
+	];
+
+	const [minPixelX, maxPixelX] = [
+		Math.min(topLeft.pixel[0], bottomRight.pixel[0]),
+		Math.max(topLeft.pixel[0], bottomRight.pixel[0])
+	];
+	const [minPixelY, maxPixelY] = [
+		Math.min(topLeft.pixel[1], bottomRight.pixel[1]),
+		Math.max(topLeft.pixel[1], bottomRight.pixel[1])
+	];
+
+	return {
+		topLeft: {
+			tile: [minX, minY],
+			pixel: [minPixelX, minPixelY]
+		},
+		bottomRight: {
+			tile: [maxX, maxY],
+			pixel: [maxPixelX, maxPixelY]
+		}
+	};
+}
+
+export function createRectCoords({ topLeft, bottomRight }: MeasureArea): RectCoords<TileCoords> {
+	return {
+		topLeft,
+		topRight: {
+			tile: [bottomRight.tile[0], topLeft.tile[1]],
+			pixel: [bottomRight.pixel[0], topLeft.pixel[1]]
+		},
+		bottomLeft: {
+			tile: [topLeft.tile[0], bottomRight.tile[1]],
+			pixel: [topLeft.pixel[0], bottomRight.pixel[1]]
+		},
+		bottomRight
+	};
 }

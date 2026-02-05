@@ -55,6 +55,14 @@
 				</MapButton>
 
 				<MapButton
+					v-tooltip.right="'Measure area'"
+					:severity="isMeasuring ? 'primary' : 'secondary'"
+					@click="handleMeasure"
+				>
+					<MeasureIcon />
+				</MapButton>
+
+				<MapButton
 					v-if="mapBearing !== 0"
 					v-tooltip.right="'Reset map rotation'"
 					@click="resetMapRotation"
@@ -109,6 +117,7 @@
 						@close="isUserMenuOpen = false"
 						@logout="handleLogOut"
 						@open-notifications="handleOpenNotifications"
+						@refresh-profile="updateUserProfile"
 					/>
 				</div>
 
@@ -193,6 +202,17 @@
 			/>
 		</div>
 
+		<Dialog
+			:draggable="false"
+			:visible="measureInstruction !== null"
+			position="top">
+			<template #container>
+				<div class="instruction-container">
+					{{ measureInstruction }}
+				</div>
+			</template>
+		</Dialog>
+
 		<PixelInfo
 			:is-open="selectedPixelCoords !== null"
 			:coords="selectedPixelCoords"
@@ -200,6 +220,13 @@
 			@report="handleReportPixel"
 			@favorite-added="handleFavoriteChanged"
 			@favorite-removed="handleFavoriteChanged"
+		/>
+
+		<MeasureInfo
+			:is-open="isMeasureInfoOpen"
+			:user-profile="userProfile"
+			@close="isMeasureInfoOpen = false"
+			@clear-pixels="handleClearPixels"
 		/>
 
 		<AboutDialog
@@ -239,6 +266,7 @@ import ColorPalette from "~/components/ColorPalette.vue";
 import UserAvatar from "~/components/UserAvatar.vue";
 import UserMenu from "~/components/UserMenu.vue";
 import PixelInfo from "~/components/PixelInfo.vue";
+import MeasureInfo from "~/components/MeasureInfo.vue";
 import NotificationDialog from "~/components/NotificationDialog.vue";
 import StoreDialog, { StoreTab } from "~/components/StoreDialog.vue";
 import LeaderboardDialog from "~/components/LeaderboardDialog.vue";
@@ -247,6 +275,7 @@ import { type UserProfile, useUserProfile } from "~/composables/useUserProfile";
 import { useCharges } from "~/composables/useCharges";
 import { usePaint } from "~/composables/usePaint";
 import { useErrorToast } from "~/composables/useErrorToast";
+import { useMeasure } from "~/composables/useMeasure";
 import { useNotifications } from "~/composables/useNotifications";
 import { useTheme } from "~/composables/useTheme";
 import { useViewport } from "~/composables/useViewport";
@@ -257,6 +286,7 @@ import ExploreIcon from "~/components/icons/ExploreIcon.vue";
 import InfoIcon from "~/components/icons/InfoIcon.vue";
 import MapSatelliteIcon from "~/components/icons/MapSatelliteIcon.vue";
 import MapVectorIcon from "~/components/icons/MapVectorIcon.vue";
+import MeasureIcon from "~/components/icons/MeasureIcon.vue";
 import StatsIcon from "~/components/icons/StatsIcon.vue";
 import StoreIcon from "~/components/icons/StoreIcon.vue";
 import ZoomInIcon from "~/components/icons/ZoomInIcon.vue";
@@ -280,6 +310,7 @@ const isAboutOpen = ref(false);
 const isStoreOpen = ref(false);
 const isLeaderboardOpen = ref(false);
 const isSearchOpen = ref(false);
+const isMeasureInfoOpen = ref(false);
 const notificationCount = ref(0);
 const selectedColor = ref("rgba(0,0,0,1)");
 const isEraserMode = ref(false);
@@ -312,6 +343,14 @@ const { showToast, handleError } = useErrorToast();
 const { getUnreadCount } = useNotifications();
 const { initTheme } = useTheme();
 const { isMobile } = useViewport();
+const {
+	rectCoords: measureCoords,
+	instruction: measureInstruction,
+	isMeasuring,
+	startMeasure,
+	cancelMeasure,
+	selectCorner
+} = useMeasure();
 
 const isLoggedIn = computed(() => userProfile.value !== null);
 
@@ -642,6 +681,13 @@ let lastClickTime = 0;
 const DOUBLE_CLICK_THRESHOLD = 300;
 
 const handleMapClick = (event: LngLat) => {
+	if (isMeasuring.value) {
+		const tileCoords = lngLatToTileCoords(event);
+		selectCorner(tileCoords);
+		isMeasureInfoOpen.value = measureCoords.value !== null;
+		return;
+	}
+
 	if (isPaintOpen.value) {
 		drawPixel(event);
 	} else {
@@ -787,6 +833,38 @@ const handleLeaderboardNavigate = (coords: LngLat) => {
 	mapRef.value?.flyToLocation(lat, lng, WIDE_ZOOM_LEVEL);
 	pushMapLocation(coords, WIDE_ZOOM_LEVEL);
 };
+
+const handleMeasure = () => {
+	if (isMeasuring.value) {
+		cancelMeasure();
+		isMeasureInfoOpen.value = false;
+	} else {
+		startMeasure();
+	}
+};
+
+const handleClearPixels = (areaPixels: TileCoords[]) => {
+	const transparencyPixels = areaPixels.map(tileCoords => ({
+		id: getPixelId(tileCoords),
+		tileCoords,
+		color: "rgba(0,0,0,0)"
+	}));
+
+	pixels.value.push(...transparencyPixels);
+	isPaintOpen.value = true;
+};
+
+watch(() => measureCoords.value, () => {
+	if (measureCoords.value && isMeasuring.value) {
+		isMeasureInfoOpen.value = true;
+	}
+});
+
+watch(() => isMeasureInfoOpen.value, (newValue) => {
+	if (!newValue && isMeasuring.value) {
+		cancelMeasure();
+	}
+});
 </script>
 
 <style scoped>
@@ -839,11 +917,11 @@ const handleLeaderboardNavigate = (coords: LngLat) => {
 }
 
 .app-overlays-profile {
+	grid-area: top-right;
 	align-items: flex-end;
 	justify-content: flex-end;
 	align-self: end;
 	justify-self: end;
-	grid-area: top-right;
 }
 
 .app-overlays-paint {
@@ -859,5 +937,9 @@ const handleLeaderboardNavigate = (coords: LngLat) => {
 	padding: 0;
 	margin: 0;
 	overflow: visible;
+}
+
+.instruction-container {
+	padding: 0.5rem 1rem;
 }
 </style>
