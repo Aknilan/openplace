@@ -4,6 +4,9 @@ export const ZOOM_LEVEL = 11;
 export const WIDE_ZOOM_LEVEL = 12.5;
 export const CLOSE_ZOOM_LEVEL = 15;
 
+// Radius of the Earth in metres
+const R = 6_371_000;
+
 export type Coords = [number, number];
 export type LngLat = Coords;
 
@@ -218,4 +221,20 @@ export function createRectCoords({ topLeft, bottomRight }: MeasureArea): RectCoo
 		},
 		bottomRight
 	};
+}
+
+export function calculateRectArea({ topLeft, bottomRight }: RectCoords<TileCoords>): number {
+	const { topLeft: [lng1, lat1] } = getPixelBounds(topLeft);
+	const { bottomRight: [lng2, lat2] } = getPixelBounds(bottomRight);
+
+	const [phi1, phi2] = [
+		lat1 * Math.PI / 180,
+		lat2 * Math.PI / 180
+	];
+	const [lambda1, lambda2] = [
+		lng1 * Math.PI / 180,
+		lng2 * Math.PI / 180
+	];
+
+	return Math.pow(R, 2) * Math.abs(Math.sin(phi1) - Math.sin(phi2)) * Math.abs(lambda1 - lambda2);
 }

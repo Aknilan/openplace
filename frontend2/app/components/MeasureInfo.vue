@@ -69,7 +69,8 @@
 							class="select"
 						>
 							{{ widthPixels.toLocaleString() }}&times;{{ heightPixels.toLocaleString() }}<br>
-							{{ totalPixels.toLocaleString() }} {{ totalPixels === 1 ? "pixel" : "pixels" }}
+							{{ totalPixels.toLocaleString() }} {{ totalPixels === 1 ? "pixel" : "pixels" }}<br>
+							<span class="area">{{ formattedArea }}</span>
 						</span>
 					</div>
 
@@ -107,7 +108,10 @@
 					<div class="coords-pointer coords-pointer-top-right" />
 					<div class="coords-pointer coords-pointer-bottom-left" />
 					<div class="coords-pointer coords-pointer-bottom-right" />
+
 				</div>
+
+				<div class="note">Physical area is approximate.</div>
 
 				<div
 					v-if="rectCoords && userProfile?.role === 'admin'"
@@ -148,8 +152,43 @@ const {
 	rectCoords,
 	widthPixels,
 	heightPixels,
-	totalPixels
+	totalPixels,
+	areaSquareMeters
 } = useMeasure();
+
+const NBSP = "\u00A0";
+
+const M_PER_FT = 0.3048;
+const SQM_TO_SQFT = 1 / (M_PER_FT * M_PER_FT);
+const SQM_TO_SQMI = (5280 * M_PER_FT) * (5280 * M_PER_FT);
+const SQM_TO_SQKM = 1_000_000;
+const SQFT_TO_SQMI = 5280 * 5280;
+
+const formattedArea = computed(() => {
+	if (!areaSquareMeters.value) {
+		return null;
+	}
+
+	const sqM = areaSquareMeters.value;
+	const sqFt = sqM * SQM_TO_SQFT;
+	const sqMi = sqM / SQM_TO_SQMI;
+	const sqKm = sqM / SQM_TO_SQKM;
+
+	let metric: string;
+	if (sqM < 1000) {
+		metric = `${sqM.toLocaleString(undefined, { maximumFractionDigits: 2 })}${NBSP}m²`;
+	} else if (sqKm < 1) {
+		metric = `${sqM.toLocaleString(undefined, { maximumFractionDigits: 0 })}${NBSP}m²`;
+	} else {
+		metric = `${sqKm.toLocaleString(undefined, { maximumFractionDigits: sqKm < 100 ? 2 : 0 })}${NBSP}km²`;
+	}
+
+	const imperial = sqFt < SQFT_TO_SQMI
+		? `${sqFt.toLocaleString(undefined, { maximumFractionDigits: sqFt < 1000 ? 2 : 0 })}${NBSP}ft²`
+		: `${sqMi.toLocaleString(undefined, { maximumFractionDigits: sqMi < 100 ? 2 : 0 })}${NBSP}mi²`;
+
+	return `${metric} / ${imperial}`;
+});
 
 const handleClearArea = () => {
 	if (!rectCoords.value) {
@@ -245,6 +284,10 @@ const handleClearArea = () => {
 	text-align: center;
 }
 
+.area {
+	font-size: 0.75em;
+}
+
 .coords-top-left {
 	grid-area: top-left;
 	align-self: start;
@@ -316,6 +359,11 @@ const handleClearArea = () => {
 	right: -2px;
 	transform: rotate(45deg);
 	transform-origin: 100% 50%;
+}
+
+.note {
+	font-size: 0.75rem;
+	text-align: center;
 }
 
 .actions {

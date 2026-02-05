@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import { createMeasureArea, createRectCoords, TILE_SIZE, type TileCoords } from "~/utils/coordinates";
+import { calculateRectArea, createMeasureArea, createRectCoords, TILE_SIZE, type TileCoords } from "~/utils/coordinates";
 
 export enum MeasureState {
 	Idle = "idle",
@@ -50,6 +50,14 @@ export const useMeasure = () => {
 		return createRectCoords(measureArea.value);
 	});
 
+	const areaSquareMeters = computed(() => {
+		if (!rectCoords.value) {
+			return 0;
+		}
+
+		return calculateRectArea(rectCoords.value);
+	});
+
 	const widthPixels = computed(() => {
 		if (!measureArea.value) {
 			return 0;
@@ -77,7 +85,7 @@ export const useMeasure = () => {
 	const instruction = computed(() => {
 		switch (measureState.value) {
 		case MeasureState.Idle:
-			return "";
+			return null;
 		case MeasureState.SelectTopLeft:
 			return "Select top-left corner";
 		case MeasureState.SelectBottomRight:
@@ -96,6 +104,7 @@ export const useMeasure = () => {
 		widthPixels,
 		heightPixels,
 		totalPixels,
+		areaSquareMeters,
 		instruction,
 		isMeasuring,
 		startMeasure,
