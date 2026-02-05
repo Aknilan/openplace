@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import type { Map as MaplibreMap, Marker, RasterTileSource, StyleSpecification } from "maplibre-gl";
+import type { GeoJSONSource, Map as MaplibreMap, Marker, RasterTileSource, StyleSpecification } from "maplibre-gl";
 import { getPixelBounds, getPixelsBetween, getTileBounds, type LngLat, lngLatToTileCoords, TILE_SIZE, type TileCoords, ZOOM_LEVEL } from "~/utils/coordinates";
 import { useTheme } from "~/composables/useTheme";
 
@@ -566,7 +566,7 @@ onMounted(async () => {
 	const maplibregl = (await import("maplibre-gl")).default;
 
 	map = new maplibregl.Map({
-		container: mapContainer.value,
+		container: mapContainer.value as HTMLDivElement,
 		style: mapStyle.value!,
 		center: props.initialLocation.center,
 		zoom: props.initialLocation.zoom,
@@ -576,7 +576,7 @@ onMounted(async () => {
 		attributionControl: false
 	});
 
-	// Expose map on window
+	// @ts-expect-error - Expose map on window
 	globalThis.map = map;
 
 	// Gestures
@@ -781,10 +781,8 @@ watch(pendingPixelBordersGeoJSON, () => {
 }, { deep: true });
 
 watch(hoverGeoJSON, () => {
-	const pixels = map?.getSource("openplace-hover");
-	if (pixels && "setData" in pixels && typeof pixels.setData === "function") {
-		pixels.setData(hoverGeoJSON.value);
-	}
+	const pixels = map?.getSource("openplace-hover") as GeoJSONSource;
+	pixels?.setData(hoverGeoJSON.value);
 }, { deep: true });
 
 watch(() => props.isDrawing, () => {
@@ -803,9 +801,7 @@ watch(() => props.favoriteLocations, () => {
 
 onUnmounted(() => {
 	for (const marker of favoriteMarkers) {
-		if (marker && typeof (marker as { remove: () => void }).remove === "function") {
-			(marker as { remove: () => void }).remove();
-		}
+		marker?.remove();
 	}
 	favoriteMarkers.length = 0;
 
