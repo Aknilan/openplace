@@ -613,8 +613,17 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		break;
 
 	case "Escape":
-		// Close PixelInfo
+		// Close popups
 		selectedPixelCoords.value = null;
+		isUserMenuOpen.value = false;
+		isSearchOpen.value = false;
+		isStoreOpen.value = false;
+		isLeaderboardOpen.value = false;
+		isAboutOpen.value = false;
+		isNotificationsOpen.value = false;
+		isMeasureInfoOpen.value = false;
+		isMeasureInfoOpen.value = false;
+		cancelMeasure();
 		break;
 	}
 };
