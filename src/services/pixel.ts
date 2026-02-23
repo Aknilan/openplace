@@ -336,22 +336,19 @@ export class PixelService {
 					ctx.clearRect(0, 0, 1000, 1000);
 				}
 
-				const imageData = ctx.getImageData(0, 0, 1000, 1000);
-				const data = imageData.data;
-
+				// fillRect / clearRect au lieu de putImageData : contourne le bug napi-rs/canvas
+				// où putImageData n'écrase pas les pixels déjà dessinés par une image chargée
 				for (const pixel of pixels) {
 					const color = COLOR_PALETTE[pixel.colorId];
 					if (!color) continue;
-
-					const [r, g, b] = color.rgb;
-					const a = pixel.colorId === 0 ? 0 : 255;
-					const index = (pixel.y * 1000 + pixel.x) * 4;
-					data[index + 0] = r;
-					data[index + 1] = g;
-					data[index + 2] = b;
-					data[index + 3] = a;
+					if (pixel.colorId === 0) {
+						ctx.clearRect(pixel.x, pixel.y, 1, 1);
+					} else {
+						const [r, g, b] = color.rgb;
+						ctx.fillStyle = `rgb(${r},${g},${b})`;
+						ctx.fillRect(pixel.x, pixel.y, 1, 1);
+					}
 				}
-				ctx.putImageData(imageData, 0, 0);
 
 				const buffer = await this.quantize(canvas.toBuffer("image/png"));
 				await tx.tile.upsert({
