@@ -564,11 +564,11 @@ export class PixelService {
 		Prisma.sql`(${v.season}, ${v.tileX}, ${v.tileY}, ${v.x}, ${v.y}, ${v.colorId}, ${v.paintedBy}, ${v.paintedAt}, ${v.regionCityId}, ${v.regionCountryId})`
 	))}
 						ON DUPLICATE KEY UPDATE
-							colorId = VALUES(colorId),
-							paintedBy = VALUES(paintedBy),
-							paintedAt = VALUES(paintedAt),
-							regionCityId = VALUES(regionCityId),
-							regionCountryId = VALUES(regionCountryId)
+							colorId = VALUE(colorId),
+							paintedBy = VALUE(paintedBy),
+							paintedAt = VALUE(paintedAt),
+							regionCityId = VALUE(regionCityId),
+							regionCountryId = VALUE(regionCountryId)
 					`;
 				}
 
